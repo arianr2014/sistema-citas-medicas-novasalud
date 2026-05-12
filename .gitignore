@@ -29,3 +29,8 @@ media/
 *.swp
 *.swo
 .DS_Store
+
+# Archives / package downloads
+*.tgz
+*.tar.gz
+*.zip
