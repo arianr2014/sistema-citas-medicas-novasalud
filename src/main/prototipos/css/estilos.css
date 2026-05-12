@@ -1,0 +1,94 @@
+:root {
+    --brand-50: #f1f7ff;
+    --brand-100: #dbeeff;
+    --brand-200: #c3e3ff;
+    --brand-300: #a8d6ff;
+    --brand-400: #7fc2ff;
+    --brand-500: #5aaaf2;
+    --brand-600: #3f8fd6;
+    --brand-700: #2f73ae;
+    --brand-text: #1f4f73;
+    --brand-white: #ffffff;
+    --brand-grad-main: linear-gradient(135deg, #dbeeff 0%, #a8d6ff 45%, #7fc2ff 100%);
+    --brand-grad-strong: linear-gradient(135deg, #7fc2ff 0%, #5aaaf2 55%, #3f8fd6 100%);
+}
+
+body {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+}
+
+  .main-container {
+        width: 90%;
+        margin: 30px auto;
+    }
+
+	.bg-success,
+	.btn-success,
+	.badge.bg-success,
+	.card-header.bg-success,
+	.navbar.bg-success,
+	.offcanvas-header.bg-success {
+	    background: var(--brand-grad-strong) !important;
+	    border-color: var(--brand-600) !important;
+	    color: var(--brand-white) !important;
+	}
+
+	.btn-success:hover,
+	.btn-success:focus {
+	    background: linear-gradient(135deg, #70baff 0%, #4f9ce6 60%, #3a86d0 100%) !important;
+	    border-color: var(--brand-700) !important;
+	}
+
+	.table-green thead tr th {
+    background: #005187 !important;
+    color: white !important;
+}
+
+    /* 🎨 Paleta personalizada */
+    .bg-green {
+        background: var(--brand-grad-strong) !important;
+    }
+
+    .text-success,
+    .text-green {
+        color: var(--brand-700) !important;
+    }
+
+    .btn-green {
+        background: var(--brand-grad-strong);
+        border-color: var(--brand-600);
+        color: var(--brand-white);
+    }
+
+    .btn-green:hover {
+        background: linear-gradient(135deg, #70baff 0%, #4f9ce6 60%, #3a86d0 100%);
+        border-color: var(--brand-700);
+        color: var(--brand-white);
+    }
+
+    /* Botón outline verde */
+    .btn-outline-success,
+    .btn-outline-green {
+        border: 1px solid var(--brand-500);
+        color: var(--brand-600);
+        background-color: white;
+    }
+
+    .btn-outline-success:hover,
+    .btn-outline-green:hover {
+        background: var(--brand-grad-main);
+        color: var(--brand-700);
+        border-color: var(--brand-600);
+    }
+
+    /* Tabla header */
+    .table-green thead {
+        background: #005187;
+        color: var(--brand-white);
+    }
+
+    .alert-success {
+        background-color: var(--brand-50) !important;
+        border-color: var(--brand-200) !important;
+        color: var(--brand-text) !important;
+    }
