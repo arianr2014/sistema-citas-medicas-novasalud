@@ -1,0 +1,32 @@
+# Compilados Java
+*.class
+
+# Logs
+*.log
+
+# Archivos temporales
+*.ctxt
+.tmp
+.cache
+.DS_Store
+Thumbs.db
+
+# Carpetas generadas
+build/
+dist/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# VS Code
+.vscode/
+
+# IntelliJ
+.idea/
+*.iml
