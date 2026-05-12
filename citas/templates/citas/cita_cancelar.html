@@ -1,0 +1,33 @@
+{% extends "citas/base.html" %}
+{% block title %}Cancelar Cita #{{ cita.pk }} – NovaSalud{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a href="{% url 'cita_list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h2 class="mb-0 text-danger">
+    <i class="bi bi-x-circle me-2"></i>Cancelar Cita #{{ cita.pk }}
+  </h2>
+</div>
+
+<div class="card shadow-sm border-danger" style="max-width: 500px;">
+  <div class="card-body">
+    <p>¿Está seguro de que desea <strong>cancelar</strong> la siguiente cita?</p>
+    <ul class="list-unstyled mb-3">
+      <li><strong>Paciente:</strong> {{ cita.paciente.nombre_completo }}</li>
+      <li><strong>Médico:</strong> {{ cita.medico }}</li>
+      <li><strong>Fecha:</strong> {{ cita.fecha_hora|date:"d/m/Y H:i" }}</li>
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-danger">
+          <i class="bi bi-x-circle me-1"></i>Sí, cancelar
+        </button>
+        <a href="{% url 'cita_list' %}" class="btn btn-outline-secondary">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

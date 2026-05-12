@@ -1,0 +1,19 @@
+[
+  {"model": "citas.especialidad", "pk": 1, "fields": {"nombre": "Medicina General", "descripcion": "Atención primaria y consulta general"}},
+  {"model": "citas.especialidad", "pk": 2, "fields": {"nombre": "Cardiología", "descripcion": "Diagnóstico y tratamiento de enfermedades del corazón"}},
+  {"model": "citas.especialidad", "pk": 3, "fields": {"nombre": "Dermatología", "descripcion": "Enfermedades de la piel, cabello y uñas"}},
+  {"model": "citas.especialidad", "pk": 4, "fields": {"nombre": "Ginecología", "descripcion": "Salud reproductiva femenina"}},
+  {"model": "citas.especialidad", "pk": 5, "fields": {"nombre": "Ortopedia", "descripcion": "Lesiones y enfermedades del sistema musculoesquelético"}},
+  {"model": "citas.especialidad", "pk": 6, "fields": {"nombre": "Pediatría", "descripcion": "Atención médica a niños y adolescentes"}},
+  {"model": "citas.especialidad", "pk": 7, "fields": {"nombre": "Neurología", "descripcion": "Trastornos del sistema nervioso"}},
+  {"model": "citas.especialidad", "pk": 8, "fields": {"nombre": "Psiquiatría", "descripcion": "Salud mental y trastornos psiquiátricos"}},
+
+  {"model": "citas.medico", "pk": 1, "fields": {"nombres": "Carlos", "apellidos": "Rodríguez Pérez", "especialidad": 1, "numero_registro": "RM-001234", "telefono": "3001234567", "email": "c.rodriguez@novasalud.co", "activo": true}},
+  {"model": "citas.medico", "pk": 2, "fields": {"nombres": "Ana María", "apellidos": "González López", "especialidad": 2, "numero_registro": "RM-002345", "telefono": "3112345678", "email": "a.gonzalez@novasalud.co", "activo": true}},
+  {"model": "citas.medico", "pk": 3, "fields": {"nombres": "Luis Felipe", "apellidos": "Martínez Torres", "especialidad": 3, "numero_registro": "RM-003456", "telefono": "3203456789", "email": "l.martinez@novasalud.co", "activo": true}},
+  {"model": "citas.medico", "pk": 4, "fields": {"nombres": "María Elena", "apellidos": "Herrera Castro", "especialidad": 6, "numero_registro": "RM-004567", "telefono": "3154567890", "email": "m.herrera@novasalud.co", "activo": true}},
+
+  {"model": "citas.paciente", "pk": 1, "fields": {"tipo_documento": "CC", "numero_documento": "1020304050", "nombres": "Juan Pablo", "apellidos": "Suárez Vargas", "fecha_nacimiento": "1985-03-15", "telefono": "3001112233", "email": "jp.suarez@email.com", "direccion": "Calle 45 # 12-34", "eps": "Sura", "created_at": "2025-01-01T00:00:00Z"}},
+  {"model": "citas.paciente", "pk": 2, "fields": {"tipo_documento": "CC", "numero_documento": "1030405060", "nombres": "Lucía", "apellidos": "Ramírez Mora", "fecha_nacimiento": "1992-07-22", "telefono": "3102223344", "email": "lucia.ramirez@email.com", "direccion": "Carrera 10 # 56-78", "eps": "Nueva EPS", "created_at": "2025-01-01T00:00:00Z"}},
+  {"model": "citas.paciente", "pk": 3, "fields": {"tipo_documento": "CC", "numero_documento": "1040506070", "nombres": "Pedro Antonio", "apellidos": "Gómez Silva", "fecha_nacimiento": "1978-11-30", "telefono": "3203334455", "email": "", "direccion": "Avenida 80 # 23-45", "eps": "Compensar", "created_at": "2025-01-01T00:00:00Z"}}
+]
