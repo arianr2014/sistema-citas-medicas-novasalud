@@ -1,0 +1,68 @@
+{% extends "citas/base.html" %}
+{% block title %}{{ medico }} – NovaSalud{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-4">
+  <a href="{% url 'medico_list' %}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left"></i>
+  </a>
+  <h2 class="mb-0">{{ medico }}</h2>
+  {% if medico.activo %}
+    <span class="badge bg-success">Activo</span>
+  {% else %}
+    <span class="badge bg-secondary">Inactivo</span>
+  {% endif %}
+</div>
+
+<div class="card shadow-sm mb-4" style="max-width: 500px;">
+  <div class="card-header bg-white fw-semibold">
+    <i class="bi bi-person-badge me-2"></i>Datos del Médico
+  </div>
+  <div class="card-body">
+    <p class="mb-1"><strong>Especialidad:</strong> {{ medico.especialidad }}</p>
+    <p class="mb-1"><strong>Registro médico:</strong> {{ medico.numero_registro }}</p>
+    {% if medico.telefono %}
+    <p class="mb-1"><strong>Teléfono:</strong> {{ medico.telefono }}</p>
+    {% endif %}
+    {% if medico.email %}
+    <p class="mb-0"><strong>Email:</strong> {{ medico.email }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<h4><i class="bi bi-calendar2 me-2"></i>Últimas Citas</h4>
+{% if citas %}
+<div class="table-responsive">
+  <table class="table table-sm table-hover">
+    <thead class="table-light">
+      <tr><th>Fecha</th><th>Paciente</th><th>Estado</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for c in citas %}
+      <tr>
+        <td>{{ c.fecha_hora|date:"d/m/Y H:i" }}</td>
+        <td>
+          <a href="{% url 'paciente_detalle' c.paciente.pk %}">
+            {{ c.paciente.nombre_completo }}
+          </a>
+        </td>
+        <td>
+          <span class="badge
+            {% if c.estado == 'programada' %}bg-warning text-dark
+            {% elif c.estado == 'confirmada' %}bg-primary
+            {% elif c.estado == 'atendida' %}bg-success
+            {% elif c.estado == 'cancelada' %}bg-danger
+            {% else %}bg-secondary{% endif %}">
+            {{ c.get_estado_display }}
+          </span>
+        </td>
+        <td><a href="{% url 'cita_detalle' c.pk %}" class="btn btn-sm btn-outline-secondary">Ver</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">Este médico no tiene citas registradas.</p>
+{% endif %}
+{% endblock %}
