@@ -17,13 +17,15 @@ public class MedicoDAO {
         String texto = filtro == null ? "" : filtro.trim();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT m.id_medico, m.nombres, m.apellidos, m.id_especialidad, e.nombre AS especialidad, m.telefono "
-                + "FROM medico m "
-                + "INNER JOIN especialidad e ON m.id_especialidad = e.id_especialidad "
+        "SELECT m.id_medico, m.nombres, m.apellidos, m.id_especialidad, e.nombre AS especialidad, m.telefono "
+        + "FROM medico m "
+        + "INNER JOIN especialidad e ON m.id_especialidad = e.id_especialidad "
+        + "WHERE m.estado_registro = 'ACTIVO' "
+        + "AND e.estado_registro = 'ACTIVO' "
         );
 
         if (!texto.isEmpty()) {
-            sql.append("WHERE m.nombres LIKE ? OR m.apellidos LIKE ? OR e.nombre LIKE ? ");
+            sql.append("AND (m.nombres LIKE ? OR m.apellidos LIKE ? OR e.nombre LIKE ?) ");
         }
 
         sql.append("ORDER BY m.id_medico DESC");
@@ -56,7 +58,9 @@ public class MedicoDAO {
     }
 
     public Medico obtenerPorId(int idMedico) throws SQLException {
-        String sql = "SELECT id_medico, nombres, apellidos, id_especialidad, telefono FROM medico WHERE id_medico = ?";
+        String sql = "SELECT id_medico, nombres, apellidos, id_especialidad, telefono "
+        + "FROM medico "
+        + "WHERE id_medico = ? AND estado_registro = 'ACTIVO'";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -82,7 +86,10 @@ public class MedicoDAO {
 
     public List<Medico> listarPorEspecialidad(int idEspecialidad) throws SQLException {
         List<Medico> medicos = new ArrayList<>();
-        String sql = "SELECT id_medico, nombres, apellidos, id_especialidad, telefono FROM medico WHERE id_especialidad = ? ORDER BY nombres, apellidos";
+        String sql = "SELECT id_medico, nombres, apellidos, id_especialidad, telefono "
+        + "FROM medico "
+        + "WHERE id_especialidad = ? AND estado_registro = 'ACTIVO' "
+        + "ORDER BY nombres, apellidos";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -142,24 +149,12 @@ public class MedicoDAO {
     }
 
     public void eliminar(int idMedico) throws SQLException {
-        String sp = "{CALL sp_eliminar_medico(?)}";
+    String sp = "{CALL sp_eliminar_medico(?)}";
 
-        try (Connection connection = ConexionDB.getConnection();
-             CallableStatement statement = connection.prepareCall(sp)) {
-            statement.setInt(1, idMedico);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            eliminarFisico(idMedico);
-        }
+    try (Connection connection = ConexionDB.getConnection();
+         CallableStatement statement = connection.prepareCall(sp)) {
+        statement.setInt(1, idMedico);
+        statement.executeUpdate();
     }
-
-    private void eliminarFisico(int idMedico) throws SQLException {
-        String sql = "DELETE FROM medico WHERE id_medico = ?";
-
-        try (Connection connection = ConexionDB.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, idMedico);
-            statement.executeUpdate();
-        }
     }
 }

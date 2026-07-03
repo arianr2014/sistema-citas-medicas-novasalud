@@ -14,40 +14,136 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Controlador del módulo Médicos.
+ *
+ * Fase 3:
+ * - GET se usa solo para consultar, listar o abrir formularios.
+ * - POST se usa para operaciones que modifican datos: guardar, actualizar y eliminar.
+ */
 @WebServlet("/medicos")
 public class MedicoController extends HttpServlet {
 
     private final MedicoService medicoService = new MedicoService();
     private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
 
+    /**
+     * Atiende solicitudes de navegación y consulta.
+     * No debe modificar datos en la base de datos.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String accion = request.getParameter("accion");
-        if (accion == null || accion.isBlank() || "listar".equals(accion)) {
+        String accion = texto(request.getParameter("accion"));
+
+        if (accion.isBlank() || "listar".equals(accion)) {
             listar(request, response);
             return;
         }
 
         switch (accion) {
             case "form":
-                abrirFormulario(request, response);
-                break;
             case "editar":
                 abrirFormulario(request, response);
                 break;
+
+            /*
+             * Seguridad Fase 3:
+             * La eliminación ya no se permite por GET.
+             * Si alguien intenta usar:
+             * /medicos?accion=eliminar&id=...
+             * el sistema no elimina y redirige al listado.
+             */
             case "eliminar":
-                eliminar(request, response);
+                response.sendRedirect(request.getContextPath() + "/medicos?msg=metodo_invalido");
                 break;
+
             default:
                 listar(request, response);
                 break;
         }
     }
 
+    /**
+     * Atiende operaciones que modifican información.
+     * Aquí se procesan guardar/actualizar y eliminar.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        String accion = texto(request.getParameter("accion"));
+
+        /*
+         * Fase 3:
+         * La eliminación de médicos ahora se procesa únicamente por POST.
+         */
+        if ("eliminar".equals(accion)) {
+            eliminar(request, response);
+            return;
+        }
+
+        /*
+         * Si no llega accion=eliminar, se interpreta como registro o actualización
+         * desde el formulario de médico.
+         */
+        guardarMedico(request, response);
+    }
+
+    /**
+     * Lista médicos activos, con o sin filtro de búsqueda.
+     */
+    private void listar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String q = texto(request.getParameter("q"));
+
+        try {
+            List<Medico> medicos = medicoService.listar(q);
+            request.setAttribute("medicos", medicos);
+            request.setAttribute("q", q);
+            request.getRequestDispatcher("/WEB-INF/views/medico/list.jsp").forward(request, response);
+
+        } catch (SQLException ex) {
+            throw new ServletException("Error al listar medicos", ex);
+        }
+    }
+
+    /**
+     * Abre el formulario para crear un nuevo médico o editar uno existente.
+     */
+    private void abrirFormulario(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        int idMedico = parseEntero(request.getParameter("id"));
+
+        if (idMedico > 0) {
+            try {
+                Medico medico = medicoService.obtenerPorId(idMedico);
+
+                if (medico == null) {
+                    response.sendRedirect(request.getContextPath() + "/medicos?msg=noexiste");
+                    return;
+                }
+
+                request.setAttribute("medico", medico);
+
+            } catch (SQLException ex) {
+                throw new ServletException("Error al cargar medico", ex);
+            }
+        }
+
+        cargarEspecialidades(request);
+        request.getRequestDispatcher("/WEB-INF/views/medico/form.jsp").forward(request, response);
+    }
+
+    /**
+     * Guarda o actualiza un médico.
+     */
+    private void guardarMedico(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         String idTexto = request.getParameter("idMedico");
@@ -65,14 +161,17 @@ public class MedicoController extends HttpServlet {
 
         try {
             HttpSession session = request.getSession(false);
-            String usuario = session == null ? "sistema" : String.valueOf(session.getAttribute("usuarioLogeado"));
+            String usuario = obtenerUsuarioSesion(session);
+
             medicoService.guardar(medico, usuario);
             response.sendRedirect(request.getContextPath() + "/medicos?msg=ok");
+
         } catch (IllegalArgumentException ex) {
             request.setAttribute("error", ex.getMessage());
             request.setAttribute("medico", medico);
             cargarEspecialidades(request);
             request.getRequestDispatcher("/WEB-INF/views/medico/form.jsp").forward(request, response);
+
         } catch (SQLException ex) {
             request.setAttribute("error", "No se pudo guardar el medico: " + ex.getMessage());
             request.setAttribute("medico", medico);
@@ -81,42 +180,13 @@ public class MedicoController extends HttpServlet {
         }
     }
 
-    private void listar(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String q = texto(request.getParameter("q"));
-        try {
-            List<Medico> medicos = medicoService.listar(q);
-            request.setAttribute("medicos", medicos);
-            request.setAttribute("q", q);
-            request.getRequestDispatcher("/WEB-INF/views/medico/list.jsp").forward(request, response);
-        } catch (SQLException ex) {
-            throw new ServletException("Error al listar medicos", ex);
-        }
-    }
-
-    private void abrirFormulario(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int idMedico = parseEntero(request.getParameter("id"));
-
-        if (idMedico > 0) {
-            try {
-                Medico medico = medicoService.obtenerPorId(idMedico);
-                if (medico == null) {
-                    response.sendRedirect(request.getContextPath() + "/medicos?msg=noexiste");
-                    return;
-                }
-                request.setAttribute("medico", medico);
-            } catch (SQLException ex) {
-                throw new ServletException("Error al cargar medico", ex);
-            }
-        }
-
-        cargarEspecialidades(request);
-        request.getRequestDispatcher("/WEB-INF/views/medico/form.jsp").forward(request, response);
-    }
-
+    /**
+     * Elimina lógicamente un médico.
+     * Esta acción debe recibirse únicamente mediante POST.
+     */
     private void eliminar(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
+
         int idMedico = parseEntero(request.getParameter("id"));
 
         if (idMedico <= 0) {
@@ -127,22 +197,42 @@ public class MedicoController extends HttpServlet {
         try {
             medicoService.eliminar(idMedico);
             response.sendRedirect(request.getContextPath() + "/medicos?msg=deleted");
+
         } catch (IllegalArgumentException ex) {
             response.sendRedirect(request.getContextPath() + "/medicos?msg=invalid");
+
         } catch (SQLException ex) {
-            throw new ServletException("Error al eliminar medico", ex);
+            response.sendRedirect(request.getContextPath() + "/medicos?msg=errorDelete");
         }
     }
 
+    /**
+     * Carga especialidades activas para el formulario de médicos.
+     */
     private void cargarEspecialidades(HttpServletRequest request) throws ServletException {
         try {
             List<Especialidad> especialidades = especialidadDAO.listar();
             request.setAttribute("especialidades", especialidades);
+
         } catch (SQLException ex) {
             throw new ServletException("No se pudo cargar la lista de especialidades", ex);
         }
     }
 
+    /**
+     * Obtiene el usuario autenticado para registrar auditoría básica.
+     */
+    private String obtenerUsuarioSesion(HttpSession session) {
+        if (session == null || session.getAttribute("usuarioLogeado") == null) {
+            return "sistema";
+        }
+
+        return String.valueOf(session.getAttribute("usuarioLogeado"));
+    }
+
+    /**
+     * Convierte texto a entero de forma segura.
+     */
     private int parseEntero(String value) {
         try {
             return Integer.parseInt(value);
@@ -151,6 +241,9 @@ public class MedicoController extends HttpServlet {
         }
     }
 
+    /**
+     * Normaliza texto evitando valores null.
+     */
     private String texto(String value) {
         return value == null ? "" : value.trim();
     }

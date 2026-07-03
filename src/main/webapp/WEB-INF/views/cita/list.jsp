@@ -95,6 +95,14 @@
                     <div class="alert alert-info">La cita solicitada no existe.</div>
                 <% } else if ("readonly".equals(msg)) { %>
                     <div class="alert alert-info">La cita ya fue atendida y no puede editarse.</div>
+                <% } else if ("invalid".equals(msg)) { %>
+                    <div class="alert alert-danger">Solicitud invalida.</div>
+                <% } else if ("metodo_invalido".equals(msg)) { %>
+                    <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
+                <% } else if ("errorDelete".equals(msg)) { %>
+                    <div class="alert alert-danger">No se pudo anular la cita.</div>
+                <% } else if ("errorUpdate".equals(msg)) { %>
+                    <div class="alert alert-danger">No se pudo actualizar el estado de la cita.</div>
                 <% } %>
 
                 <div class="card border-0 shadow-sm">
@@ -140,19 +148,52 @@
                                                     <%= c.getEstado() == null ? "" : c.getEstado() %>
                                                 </span>
                                             </td>
+                                            
                                             <td class="text-center">
-                                                <% if (!esAtendida) { %>
-                                                    <a href="${pageContext.request.contextPath}/citas?accion=atender&id=<%= c.getIdCita() %>" class="btn btn-outline-success btn-sm js-confirm-atender" title="Atender cita">
+                                            <% if (!esAtendida) { %>
+                                                <!--
+                                                    Fase 3:
+                                                    Marcar como ATENDIDA ya no se ejecuta por enlace GET.
+                                                    Ahora se envía mediante formulario POST.
+                                                -->
+                                                <form action="${pageContext.request.contextPath}/citas"
+                                                      method="post"
+                                                      class="d-inline js-form-atender">
+                                                    <input type="hidden" name="accion" value="atender">
+                                                    <input type="hidden" name="id" value="<%= c.getIdCita() %>">
+
+                                                    <button type="submit"
+                                                            class="btn btn-outline-success btn-sm"
+                                                            title="Atender cita">
                                                         <i class="bi bi-check-lg"></i>
-                                                    </a>
-                                                    <a href="${pageContext.request.contextPath}/citas?accion=editar&id=<%= c.getIdCita() %>" class="btn btn-outline-success btn-sm" title="Editar cita">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                <% } %>
-                                                <a href="${pageContext.request.contextPath}/citas?accion=eliminar&id=<%= c.getIdCita() %>" class="btn btn-outline-danger btn-sm js-confirm-anular">
-                                                    <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </form>
+
+                                                <a href="${pageContext.request.contextPath}/citas?accion=editar&id=<%= c.getIdCita() %>"
+                                                   class="btn btn-outline-success btn-sm"
+                                                   title="Editar cita">
+                                                    <i class="bi bi-pencil"></i>
                                                 </a>
-                                            </td>
+                                            <% } %>
+
+                                            <!--
+                                                Fase 3:
+                                                Anular cita ya no se ejecuta por enlace GET.
+                                                Ahora se envía mediante formulario POST.
+                                            -->
+                                            <form action="${pageContext.request.contextPath}/citas"
+                                                  method="post"
+                                                  class="d-inline js-form-anular">
+                                                <input type="hidden" name="accion" value="eliminar">
+                                                <input type="hidden" name="id" value="<%= c.getIdCita() %>">
+
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        title="Anular cita">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                         </tr>
                                     <% } %>
                                 <% } %>
@@ -237,48 +278,50 @@
                 mostrarPagina(1);
             })();
 
-            /* ── SweetAlert2 confirmaciones ── */
-            document.querySelectorAll(".js-confirm-atender").forEach(function (btn) {
-                btn.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    const url = btn.getAttribute("href");
+            /* ── SweetAlert2 confirmaciones ──
+                Fase 3:
+                Las confirmaciones ya no redirigen por URL.
+                Ahora confirman y envían formularios POST.
+             */
+             document.querySelectorAll(".js-form-atender").forEach(function (form) {
+                 form.addEventListener("submit", function (event) {
+                     event.preventDefault();
 
-                    Swal.fire({
-                        title: "Marcar como ATENDIDA",
-                        text: "La cita cambiara a estado ATENDIDA.",
-                        icon: "question",
-                        showCancelButton: true,
-                        confirmButtonText: "Si, atender",
-                        cancelButtonText: "Cancelar",
-                        confirmButtonColor: "#198754"
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            window.location.href = url;
-                        }
-                    });
-                });
-            });
+                     Swal.fire({
+                         title: "Marcar como ATENDIDA",
+                         text: "La cita cambiara a estado ATENDIDA.",
+                         icon: "question",
+                         showCancelButton: true,
+                         confirmButtonText: "Si, atender",
+                         cancelButtonText: "Cancelar",
+                         confirmButtonColor: "#198754"
+                     }).then(function (result) {
+                         if (result.isConfirmed) {
+                             form.submit();
+                         }
+                     });
+                 });
+             });
 
-            document.querySelectorAll(".js-confirm-anular").forEach(function (btn) {
-                btn.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    const url = btn.getAttribute("href");
+             document.querySelectorAll(".js-form-anular").forEach(function (form) {
+                 form.addEventListener("submit", function (event) {
+                     event.preventDefault();
 
-                    Swal.fire({
-                        title: "Anular cita",
-                        text: "Esta accion anulara la cita seleccionada.",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Si, anular",
-                        cancelButtonText: "Cancelar",
-                        confirmButtonColor: "#dc3545"
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            window.location.href = url;
-                        }
-                    });
-                });
-            });
+                     Swal.fire({
+                         title: "Anular cita",
+                         text: "Esta accion anulara la cita seleccionada.",
+                         icon: "warning",
+                         showCancelButton: true,
+                         confirmButtonText: "Si, anular",
+                         cancelButtonText: "Cancelar",
+                         confirmButtonColor: "#dc3545"
+                     }).then(function (result) {
+                         if (result.isConfirmed) {
+                             form.submit();
+                         }
+                     });
+                 });
+             });
         });
     </script>
 </body>

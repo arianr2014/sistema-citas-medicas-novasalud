@@ -17,12 +17,13 @@ public class PacienteDAO {
         String texto = filtro == null ? "" : filtro.trim();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT id_paciente, dni, nombres, apellidos, telefono, direccion "
-                + "FROM paciente "
+        "SELECT id_paciente, dni, nombres, apellidos, telefono, direccion "
+        + "FROM paciente "
+        + "WHERE estado_registro = 'ACTIVO' "
         );
 
         if (!texto.isEmpty()) {
-            sql.append("WHERE dni LIKE ? OR nombres LIKE ? OR apellidos LIKE ? ");
+            sql.append("AND (dni LIKE ? OR nombres LIKE ? OR apellidos LIKE ?) ");
         }
 
         sql.append("ORDER BY id_paciente DESC");
@@ -55,7 +56,9 @@ public class PacienteDAO {
     }
 
     public Paciente obtenerPorId(int idPaciente) throws SQLException {
-        String sql = "SELECT id_paciente, dni, nombres, apellidos, telefono, direccion FROM paciente WHERE id_paciente = ?";
+        String sql = "SELECT id_paciente, dni, nombres, apellidos, telefono, direccion "
+        + "FROM paciente "
+        + "WHERE id_paciente = ? AND estado_registro = 'ACTIVO'";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -80,7 +83,9 @@ public class PacienteDAO {
     }
 
     public Paciente obtenerPorDni(String dni) throws SQLException {
-        String sql = "SELECT id_paciente, dni, nombres, apellidos, telefono, direccion FROM paciente WHERE dni = ?";
+        String sql = "SELECT id_paciente, dni, nombres, apellidos, telefono, direccion "
+        + "FROM paciente "
+        + "WHERE dni = ? AND estado_registro = 'ACTIVO'";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -143,24 +148,12 @@ public class PacienteDAO {
     }
 
     public void eliminar(int idPaciente) throws SQLException {
-        String sp = "{CALL sp_eliminar_paciente(?)}";
+    String sp = "{CALL sp_eliminar_paciente(?)}";
 
-        try (Connection connection = ConexionDB.getConnection();
-             CallableStatement statement = connection.prepareCall(sp)) {
-            statement.setInt(1, idPaciente);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            eliminarFisico(idPaciente);
-        }
+    try (Connection connection = ConexionDB.getConnection();
+         CallableStatement statement = connection.prepareCall(sp)) {
+        statement.setInt(1, idPaciente);
+        statement.executeUpdate();
     }
-
-    private void eliminarFisico(int idPaciente) throws SQLException {
-        String sql = "DELETE FROM paciente WHERE id_paciente = ?";
-
-        try (Connection connection = ConexionDB.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, idPaciente);
-            statement.executeUpdate();
-        }
     }
 }

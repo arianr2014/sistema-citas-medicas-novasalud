@@ -2,6 +2,7 @@ package com.mycompany.miprimeraweb.dao;
 
 import com.mycompany.miprimeraweb.model.Horario;
 import com.mycompany.miprimeraweb.util.ConexionDB;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,10 +33,13 @@ public class HorarioDAO {
                 + "FROM horario h "
                 + "INNER JOIN medico m ON h.id_medico = m.id_medico "
                 + "INNER JOIN especialidad e ON m.id_especialidad = e.id_especialidad "
+                + "WHERE h.estado_registro = 'ACTIVO' "
+                + "AND m.estado_registro = 'ACTIVO' "
+                + "AND e.estado_registro = 'ACTIVO' "
         );
 
         if (!texto.isEmpty()) {
-            sql.append("WHERE h.dia LIKE ? OR m.nombres LIKE ? OR m.apellidos LIKE ? OR e.nombre LIKE ? ");
+            sql.append("AND (h.dia LIKE ? OR m.nombres LIKE ? OR m.apellidos LIKE ? OR e.nombre LIKE ?) ");
         }
 
         sql.append(
@@ -67,7 +71,10 @@ public class HorarioDAO {
 
     public List<Horario> listarPorMedico(int idMedico) throws SQLException {
         List<Horario> horarios = new ArrayList<>();
-        String sql = "SELECT id_horario, id_medico, dia, hora_inicio, hora_fin FROM horario WHERE id_medico = ? ORDER BY FIELD(LOWER(TRIM(dia)), 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'), hora_inicio";
+        String sql = "SELECT id_horario, id_medico, dia, hora_inicio, hora_fin "
+        + "FROM horario "
+        + "WHERE id_medico = ? AND estado_registro = 'ACTIVO' "
+        + "ORDER BY FIELD(LOWER(TRIM(dia)), 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'), hora_inicio";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -85,7 +92,9 @@ public class HorarioDAO {
     }
 
     public Horario obtenerPorId(int idHorario) throws SQLException {
-        String sql = "SELECT id_horario, id_medico, dia, hora_inicio, hora_fin FROM horario WHERE id_horario = ?";
+        String sql = "SELECT id_horario, id_medico, dia, hora_inicio, hora_fin "
+        + "FROM horario "
+        + "WHERE id_horario = ? AND estado_registro = 'ACTIVO'";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -111,22 +120,23 @@ public class HorarioDAO {
     }
 
     public void eliminar(int idHorario) throws SQLException {
-        String sql = "DELETE FROM horario WHERE id_horario = ?";
+        String sp = "{CALL sp_eliminar_horario(?)}";
 
         try (Connection connection = ConexionDB.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, idHorario);
-            statement.executeUpdate();
-        }
+            CallableStatement statement = connection.prepareCall(sp)) {
+           statement.setInt(1, idHorario);
+           statement.executeUpdate();
     }
+}
 
     public boolean existeCruceHorario(Horario horario) throws SQLException {
         StringBuilder sql = new StringBuilder(
-                "SELECT COUNT(*) AS total FROM horario "
-                + "WHERE id_medico = ? "
-                + "AND LOWER(TRIM(dia)) = ? "
-                + "AND (? < hora_fin AND ? > hora_inicio) "
-        );
+            "SELECT COUNT(*) AS total FROM horario "
+            + "WHERE id_medico = ? "
+            + "AND estado_registro = 'ACTIVO' "
+            + "AND LOWER(TRIM(dia)) = ? "
+            + "AND (? < hora_fin AND ? > hora_inicio) "
+    );
 
         if (horario.getIdHorario() > 0) {
             sql.append("AND id_horario <> ?");
@@ -167,7 +177,12 @@ public class HorarioDAO {
 
     private List<LocalTime[]> obtenerBloquesHorario(int idMedico, String diaSemana) throws SQLException {
         List<LocalTime[]> bloques = new ArrayList<>();
-        String sql = "SELECT hora_inicio, hora_fin FROM horario WHERE id_medico = ? AND LOWER(TRIM(dia)) = ? ORDER BY hora_inicio";
+        String sql = "SELECT hora_inicio, hora_fin "
+                + "FROM horario "
+                + "WHERE id_medico = ? "
+                + "AND estado_registro = 'ACTIVO' "
+                + "AND LOWER(TRIM(dia)) = ? "
+                + "ORDER BY hora_inicio";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {

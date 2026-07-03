@@ -53,6 +53,12 @@
                     <div class="alert alert-warning">Horario eliminado correctamente.</div>
                 <% } else if ("noexiste".equals(msg)) { %>
                     <div class="alert alert-info">El horario solicitado no existe.</div>
+                <% } else if ("invalid".equals(msg)) { %>
+                    <div class="alert alert-danger">Solicitud invalida.</div>
+                <% } else if ("metodo_invalido".equals(msg)) { %>
+                    <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
+                <% } else if ("errorDelete".equals(msg)) { %>
+                    <div class="alert alert-danger">No se pudo eliminar el horario porque esta relacionado con otros registros.</div>
                 <% } %>
 
                 <div class="card border-0 shadow-sm">
@@ -85,12 +91,28 @@
                                             <td><%= h.getHoraInicio() == null ? "" : h.getHoraInicio() %></td>
                                             <td><%= h.getHoraFin() == null ? "" : h.getHoraFin() %></td>
                                             <td class="text-center">
-                                                <a href="${pageContext.request.contextPath}/horarios?accion=editar&id=<%= h.getIdHorario() %>" class="btn btn-outline-success btn-sm">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                                <a href="${pageContext.request.contextPath}/horarios?accion=eliminar&id=<%= h.getIdHorario() %>" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar horario?');">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </a>
+                                                <a href="${pageContext.request.contextPath}/horarios?accion=editar&id=<%= h.getIdHorario() %>"
+                                                    class="btn btn-outline-success btn-sm">
+                                                     <i class="bi bi-pencil"></i>
+                                                 </a>
+
+                                                 <!--
+                                                     Fase 3:
+                                                     La eliminación ya no se ejecuta por enlace GET.
+                                                     Ahora se envía mediante formulario POST para evitar modificaciones por URL.
+                                                 -->
+                                                 <form action="${pageContext.request.contextPath}/horarios"
+                                                       method="post"
+                                                       style="display:inline;">
+                                                     <input type="hidden" name="accion" value="eliminar">
+                                                     <input type="hidden" name="id" value="<%= h.getIdHorario() %>">
+
+                                                     <button type="submit"
+                                                             class="btn btn-outline-danger btn-sm"
+                                                             onclick="return confirm('¿Eliminar horario?');">
+                                                         <i class="bi bi-x-lg"></i>
+                                                     </button>
+                                                 </form>
                                             </td>
                                         </tr>
                                     <% } %>

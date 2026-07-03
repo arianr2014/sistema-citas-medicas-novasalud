@@ -1,5 +1,6 @@
 package com.mycompany.miprimeraweb.dao;
 
+import java.sql.CallableStatement;
 import com.mycompany.miprimeraweb.model.Especialidad;
 import com.mycompany.miprimeraweb.util.ConexionDB;
 import java.sql.Connection;
@@ -16,13 +17,14 @@ public class EspecialidadDAO {
         String texto = filtro == null ? "" : filtro.trim();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT id_especialidad, nombre, descripcion, usuario_registro, "
-                + "DATE_FORMAT(fecha_registro, '%Y-%m-%d %H:%i') AS fecha_registro "
-                + "FROM especialidad "
+        "SELECT id_especialidad, nombre, descripcion, usuario_registro, "
+        + "DATE_FORMAT(fecha_registro, '%Y-%m-%d %H:%i') AS fecha_registro "
+        + "FROM especialidad "
+        + "WHERE estado_registro = 'ACTIVO' "
         );
 
         if (!texto.isEmpty()) {
-            sql.append("WHERE nombre LIKE ? OR descripcion LIKE ? ");
+            sql.append("AND (nombre LIKE ? OR descripcion LIKE ?) ");
         }
 
         sql.append("ORDER BY id_especialidad DESC");
@@ -58,8 +60,9 @@ public class EspecialidadDAO {
 
     public Especialidad obtenerPorId(int idEspecialidad) throws SQLException {
         String sql = "SELECT id_especialidad, nombre, descripcion, usuario_registro, "
-                + "DATE_FORMAT(fecha_registro, '%Y-%m-%d %H:%i') AS fecha_registro "
-                + "FROM especialidad WHERE id_especialidad = ?";
+        + "DATE_FORMAT(fecha_registro, '%Y-%m-%d %H:%i') AS fecha_registro "
+        + "FROM especialidad "
+        + "WHERE id_especialidad = ? AND estado_registro = 'ACTIVO'";
 
         try (Connection connection = ConexionDB.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -115,12 +118,12 @@ public class EspecialidadDAO {
     }
 
     public void eliminar(int idEspecialidad) throws SQLException {
-        String sql = "DELETE FROM especialidad WHERE id_especialidad = ?";
+    String sp = "{CALL sp_eliminar_especialidad(?)}";
 
-        try (Connection connection = ConexionDB.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, idEspecialidad);
-            statement.executeUpdate();
-        }
+    try (Connection connection = ConexionDB.getConnection();
+         CallableStatement statement = connection.prepareCall(sp)) {
+        statement.setInt(1, idEspecialidad);
+        statement.executeUpdate();
+    }
     }
 }

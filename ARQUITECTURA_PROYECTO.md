@@ -1,176 +1,524 @@
-# Revision de arquitectura - MiPrimeraWeb
+# Arquitectura del Proyecto - Sistema de Citas Médicas NovaSalud V2.1
 
-Fecha: 2026-04-14
+## 1. Descripción general
 
-## 1) Tipo de proyecto
-- Proyecto Maven empaquetado como WAR.
-- Stack principal: Jakarta EE 10 (API con alcance provided).
-- Version de Java configurada para compilacion: 11.
-- Tipo de arquitectura identificado: arquitectura por capas con enfoque MVC en la capa web.
-- Capas visibles en el proyecto: controller, service, dao, model, filter y resources.
+El Sistema de Citas Médicas NovaSalud es una aplicación web desarrollada en Java para gestionar pacientes, médicos, especialidades, horarios y citas médicas.
 
-## 1.1) Patrones de diseño identificados
-- MVC: los servlets en controller actuan como capa de control, los JSP como vistas y los modelos en model representan el dominio.
-- DAO: la capa dao encapsula el acceso a datos y las operaciones SQL o con procedimientos almacenados.
-- Service Layer: la capa service concentra reglas de negocio, validaciones y coordinacion entre controladores y DAO.
-- Front Controller parcial: los servlets centralizan la recepcion de solicitudes por modulo y delegan el flujo hacia las vistas.
-- Utility Class: ConexionDB concentra la creacion de conexiones JDBC y la lectura de configuracion.
-- Singleton-like para acceso a conexion: ConexionDB no se instancia y expone un punto unico de acceso estatico a getConnection().
+El sistema trabaja con una arquitectura por capas basada en el patrón MVC, complementada con DAO, Service Layer, filtros de seguridad, utilidades de autenticación y conexión JDBC hacia una base de datos MySQL.
 
-## 2) Estructura identificada
-- src/main/java: capa backend Java.
-- src/main/resources/META-INF/persistence.xml: base para JPA (sin configurar aun).
-- src/main/webapp: recursos web y configuracion WEB-INF.
-- src/main/prototipos: vistas HTML de prototipo (citas, medicos, pacientes).
-- target: artefactos generados de compilacion/despliegue.
+La versión V2.1 incorpora mejoras de integridad de datos, autenticación segura y protección de operaciones críticas.
 
-## 3) Componentes backend actuales
-- Configuracion JAX-RS global:
-  - Clase: com.mycompany.miprimeraweb.JakartaRestConfiguration
-  - Base path REST: /resources
-- Recurso REST de prueba:
-  - Clase: com.mycompany.miprimeraweb.resources.JakartaEE10Resource
-  - Endpoint: GET /resources/jakartaee10
-  - Respuesta actual: "ping Jakarta EE"
+---
 
-## 4) Configuracion web
-- web.xml en version Jakarta Web 6.0.
-- Solo contiene session-timeout (30 min).
-- No hay servlets/controladores declarados explicitamente en web.xml.
+## 2. Objetivo de la arquitectura
 
-## 5) Persistencia (estado actual)
-- Existe persistence.xml con persistence-unit "my_persistence_unit".
-- No tiene proveedor, datasource, entidades ni propiedades definidas.
-- Conclusión: la capa de datos no esta implementada todavia.
+El objetivo de la arquitectura es separar responsabilidades dentro del proyecto para facilitar:
 
-## 6) Hallazgos clave
-- El proyecto esta en estado base/plantilla de NetBeans para Jakarta EE.
-- Ya hay una prueba REST minima funcional (ping).
-- No hay entidades JPA, repositorios, servicios ni API de negocio para citas/medicos/pacientes.
-- Los HTML de prototipo todavia no estan conectados al backend.
+- Mantenimiento del código.
+- Reutilización de lógica.
+- Separación entre presentación, negocio y persistencia.
+- Mayor orden en el desarrollo.
+- Escalabilidad futura.
+- Mejor control de seguridad y sesión.
+- Mayor facilidad para probar y corregir errores.
 
-## 7) Prioridad sugerida para completar codigo
-1. Definir modelo de dominio (Paciente, Medico, Cita) como entidades JPA.
-2. Completar persistence.xml con datasource y propiedades de entorno.
-3. Crear capa de acceso a datos (DAO/Repository) por entidad.
-4. Crear capa de servicios (reglas de negocio).
-5. Exponer endpoints REST CRUD para cada modulo.
-6. Conectar formularios/prototipos HTML al backend (fetch/AJAX o migracion a JSP/JSF si aplica).
-7. Agregar validaciones y manejo de errores con respuestas HTTP consistentes.
+---
 
-## 8) Riesgos actuales
-- Sin configuracion de persistencia no hay almacenamiento real.
-- Si no se separan capas (resource/service/repository), el crecimiento del proyecto se vuelve dificil.
-- Diferencias entre prototipos y modelo real pueden generar retrabajo si no se alinea pronto.
+## 3. Patrón arquitectónico aplicado
 
-## 9) Siguiente entregable recomendado
-- Documento tecnico corto con contratos de API (rutas, payloads y codigos HTTP) para:
-  - /pacientes
-  - /medicos
-  - /citas
+El proyecto aplica una arquitectura MVC con capas complementarias:
 
-## 10) Base de datos MySQL (configuracion entregada)
-
-### 10.1 Creacion de BD y usuario
-- Motor: MySQL
-- Base de datos: bd_citasmedicas
-- Usuario: usuario_citas
-- Password: ISO/IEC27001
-- Host: localhost
-- Permisos: ALL PRIVILEGES sobre bd_citasmedicas
-
-Script de referencia:
-
-```sql
-CREATE DATABASE bd_citasmedicas;
-USE bd_citasmedicas;
-
-CREATE USER 'usuario_citas'@'localhost' IDENTIFIED BY 'ISO/IEC27001';
-GRANT ALL PRIVILEGES ON bd_citasmedicas.* TO 'usuario_citas'@'localhost';
-FLUSH PRIVILEGES;
+```text
+Vista JSP
+   ↓
+Controller / Servlet
+   ↓
+Service
+   ↓
+DAO
+   ↓
+JDBC
+   ↓
+MySQL
 ```
 
-### 10.2 Tablas del modelo actual
+Cada capa cumple una función específica dentro del sistema.
+
+---
+
+## 4. Vista general de capas
+
+### 4.1. Capa de presentación
+
+La capa de presentación está compuesta por archivos JSP, HTML, CSS y JavaScript.
+
+Su responsabilidad es mostrar la información al usuario y enviar solicitudes al backend mediante formularios, botones y enlaces del sistema.
+
+Ubicación principal:
+
+```text
+src/main/webapp
+src/main/webapp/WEB-INF/views
+```
+
+Principales vistas del sistema:
+
+- Login
+- Dashboard
+- Listado de pacientes
+- Formulario de pacientes
+- Listado de médicos
+- Formulario de médicos
+- Listado de especialidades
+- Formulario de especialidades
+- Listado de horarios
+- Formulario de horarios
+- Listado de citas
+- Agenda médica
+
+Las vistas internas se ubican bajo `WEB-INF/views`, lo cual evita que puedan ser accedidas directamente desde el navegador sin pasar por los controladores.
+
+---
+
+### 4.2. Capa Controller
+
+La capa Controller está formada por Servlets. Su función es recibir solicitudes HTTP, coordinar la lógica correspondiente y redirigir hacia la vista adecuada.
+
+Ubicación:
+
+```text
+src/main/java/com/mycompany/miprimeraweb/controller
+```
+
+Responsabilidades principales:
+
+- Recibir parámetros de formularios.
+- Validar acciones solicitadas.
+- Invocar servicios.
+- Guardar mensajes de éxito o error.
+- Redirigir o reenviar a vistas JSP.
+- Controlar el flujo de navegación del sistema.
+- Separar operaciones GET y POST.
+
+Ejemplos de controladores:
+
+- `LoginController`
+- `PacienteController`
+- `MedicoController`
+- `EspecialidadController`
+- `HorarioController`
+- `CitaController`
+- `AgendaMedicaController`
+- `DashboardController`
+
+---
+
+### 4.3. Separación de responsabilidades HTTP
+
+En la versión V2.1 se reforzó la arquitectura de los controladores separando las operaciones según el método HTTP utilizado.
+
+```text
+GET  = listar, buscar, abrir formularios y editar visualmente.
+POST = guardar, actualizar, eliminar y cambiar estados.
+```
+
+Esta separación evita que acciones críticas se ejecuten desde URLs manipulables y mejora la seguridad del sistema.
+
+Acciones protegidas:
+
+- Eliminación lógica de pacientes.
+- Eliminación lógica de médicos.
+- Eliminación lógica de especialidades.
+- Eliminación lógica de horarios.
+- Atención de citas.
+- Anulación de citas.
+
+Controladores actualizados:
+
+- `PacienteController.java`
+- `EspecialidadController.java`
+- `MedicoController.java`
+- `HorarioController.java`
+- `CitaController.java`
+
+Vistas actualizadas:
+
+- `paciente/list.jsp`
+- `especialidad/list.jsp`
+- `medico/list.jsp`
+- `horario/list.jsp`
+- `cita/list.jsp`
+
+---
+
+### 4.4. Capa Service
+
+La capa Service contiene reglas de negocio y validaciones antes de acceder a la base de datos.
+
+Ubicación:
+
+```text
+src/main/java/com/mycompany/miprimeraweb/service
+```
+
+Responsabilidades principales:
+
+- Validar datos antes de registrar.
+- Evitar reglas inválidas del negocio.
+- Coordinar operaciones entre Controller y DAO.
+- Centralizar lógica que no debe estar en la vista ni directamente en el DAO.
+
+Ejemplos de reglas aplicadas:
+
+- Validación de datos obligatorios.
+- Validación de fechas de citas.
+- Validación de cruce de horarios.
+- Validación de existencia de registros.
+- Control de estados de citas.
+
+---
+
+### 4.5. Capa DAO
+
+La capa DAO, Data Access Object, se encarga del acceso a datos. Esta capa comunica la aplicación Java con la base de datos MySQL usando JDBC.
+
+Ubicación:
+
+```text
+src/main/java/com/mycompany/miprimeraweb/dao
+```
+
+Responsabilidades principales:
+
+- Ejecutar consultas SQL.
+- Ejecutar procedimientos almacenados.
+- Registrar datos.
+- Actualizar datos.
+- Consultar listados.
+- Aplicar eliminación lógica.
+- Transformar resultados de MySQL en objetos Java.
+
+DAO principales:
+
+- `UsuarioDAO`
+- `PacienteDAO`
+- `MedicoDAO`
+- `EspecialidadDAO`
+- `HorarioDAO`
+- `CitaDAO`
+- `DashboardDAO`
+
+En la versión V2.1 se actualizaron los DAO de pacientes, médicos, especialidades y horarios para trabajar con eliminación lógica mediante el campo `estado_registro`.
+
+---
+
+### 4.6. Capa Model
+
+La capa Model contiene las clases que representan las entidades principales del sistema.
+
+Ubicación:
+
+```text
+src/main/java/com/mycompany/miprimeraweb/model
+```
+
+Modelos principales:
+
+- `Usuario`
+- `Paciente`
+- `Medico`
+- `Especialidad`
+- `Horario`
+- `Cita`
+
+Estas clases permiten transportar datos entre Controller, Service, DAO y vistas.
+
+---
+
+### 4.7. Capa Filter
+
+La capa Filter controla la seguridad básica de acceso al sistema.
+
+Ubicación:
+
+```text
+src/main/java/com/mycompany/miprimeraweb/filter
+```
+
+Responsabilidades principales:
+
+- Verificar si el usuario inició sesión.
+- Evitar acceso directo a rutas protegidas.
+- Validar acceso según rol.
+- Redirigir al login cuando no existe sesión activa.
+
+Roles identificados en el sistema:
+
+- ADMIN
+- RECEPCIONISTA
+- DOCTOR
+
+---
+
+### 4.8. Capa Util
+
+La capa Util contiene clases auxiliares reutilizables.
+
+Ubicación:
+
+```text
+src/main/java/com/mycompany/miprimeraweb/util
+```
+
+Clases principales:
+
+```text
+ConexionDB.java
+PasswordUtil.java
+```
+
+`ConexionDB.java` centraliza la conexión JDBC hacia MySQL.
+
+Datos principales de conexión:
+
+```text
+Base de datos: bd_citasmedicas
+Host: localhost
+Puerto: 3306
+Usuario BD: usuario_citas
+```
+
+`PasswordUtil.java` centraliza la generación y validación de contraseñas mediante BCrypt. Su objetivo es evitar la comparación directa de contraseñas en texto plano y permitir que el sistema valide el acceso contra hashes almacenados en la base de datos.
+
+---
+
+## 5. Base de datos
+
+El sistema utiliza MySQL como motor de base de datos.
+
+Nombre de la base de datos:
+
+```text
+bd_citasmedicas
+```
+
+Tablas principales:
+
+- usuario
 - paciente
 - medico
 - especialidad
 - horario
 - cita
-- usuario
 
-### 10.3 Relaciones principales
-- medico.id_especialidad -> especialidad.id_especialidad
-- horario.id_medico -> medico.id_medico
-- cita.id_paciente -> paciente.id_paciente
-- cita.id_medico -> medico.id_medico
+La carpeta `database` contiene los scripts necesarios para crear y mantener la base de datos del proyecto.
 
-### 10.4 Reglas relevantes del esquema
-- paciente.dni es unico.
-- usuario.username es unico.
-- cita.estado_registro tiene valor por defecto ACTIVO.
-- Todas las PK son autoincrementales en tipo int.
+Estructura:
 
-### 10.5 Implicaciones para el backend (Jakarta EE)
-- persistence.xml debe apuntar a bd_citasmedicas con el usuario usuario_citas.
-- Se deben mapear entidades JPA para: Paciente, Medico, Especialidad, Horario, Cita y Usuario.
-- Se recomienda usar LocalDate para campos DATE, LocalTime para TIME y LocalDateTime para DATETIME.
-- Relaciones JPA minimas esperadas:
-  - Medico ManyToOne Especialidad
-  - Horario ManyToOne Medico
-  - Cita ManyToOne Paciente
-  - Cita ManyToOne Medico
+```text
+database
+├── 01 - bd - tablas.sql
+├── 02 - data - usuario.sql
+├── 03 - stores.sql
+├── 04 - crear usuario acceso.sql
+└── migrations
+    ├── migracion_v2_1_eliminacion_logica.sql
+    └── migracion_v2_1_hash_passwords.sql
+```
 
-### 10.6 Nota de seguridad
-- Evitar dejar credenciales reales en texto plano dentro del repositorio.
-- Para desarrollo local, mover usuario/password a variables de entorno o configuracion externa.
+---
 
-## 11) Procedimientos almacenados (stored procedures)
+## 6. Procedimientos almacenados
 
-### 11.1 Procedimientos de registro
-- sp_registrar_paciente
-- sp_registrar_medico
-- sp_registrar_cita
+El sistema utiliza procedimientos almacenados para operaciones principales sobre pacientes, médicos y citas.
 
-### 11.2 Procedimientos de actualizacion
-- sp_actualizar_paciente
-- sp_actualizar_medico
-- sp_actualizar_cita
+Procedimientos relevantes:
 
-### 11.3 Procedimientos de eliminacion logica
-- sp_eliminar_paciente
-- sp_eliminar_medico
-- sp_eliminar_cita
+- `sp_registrar_paciente`
+- `sp_actualizar_paciente`
+- `sp_eliminar_paciente`
+- `sp_registrar_medico`
+- `sp_actualizar_medico`
+- `sp_eliminar_medico`
+- `sp_registrar_cita`
+- `sp_actualizar_cita`
+- `sp_eliminar_cita`
+- `sp_eliminar_especialidad`
+- `sp_eliminar_horario`
+- `sp_listar_medicos`
+- `sp_listar_citas`
 
-### 11.4 Procedimientos de consulta
-- sp_listar_medicos
-- sp_listar_citas
+En la versión V2.1 se corrigieron procedimientos de eliminación para evitar borrado físico y trabajar con eliminación lógica.
 
-### 11.5 Contrato funcional resumido
-- Paciente:
-  - Registrar: recibe dni, nombres, apellidos, telefono, direccion, usuario.
-  - Actualizar: recibe id_paciente y datos principales.
-  - Eliminar: cambia estado a INACTIVO por id.
-- Medico:
-  - Registrar: recibe nombres, apellidos, especialidad, telefono, usuario.
-  - Actualizar: recibe id_medico y datos principales.
-  - Eliminar: cambia estado a INACTIVO por id.
-- Cita:
-  - Registrar: recibe paciente, medico, fecha, hora, estado, observaciones, usuario.
-  - Actualizar: modifica campos de la cita activa.
-  - Eliminar: eliminacion logica con estado_registro = INACTIVO.
-  - Listar: retorna datos de paciente, medico, especialidad y detalle de cita.
+---
 
-### 11.6 Nota tecnica de consistencia (importante)
-- En el esquema de tablas documentado, medico y paciente no incluyen la columna estado.
-- Sin embargo, sp_eliminar_medico y sp_eliminar_paciente hacen UPDATE sobre estado.
-- Esto puede fallar en ejecucion con error de columna inexistente.
-- Recomendacion:
-  - Opcion A: agregar columna estado en medico y paciente (por ejemplo, VARCHAR(10) con default ACTIVO).
-  - Opcion B: cambiar esos dos SP para usar eliminacion fisica (DELETE) o una columna existente.
+## 7. Eliminación lógica en V2.1
 
-### 11.7 Implicaciones para capa Java (DAO/Repository)
-- Si el proyecto usara SP como contrato principal, la capa de datos debe invocar CallableStatement.
-- Alternativamente, con JPA se puede usar StoredProcedureQuery para mantener integracion con EntityManager.
-- Definir una estrategia unica por modulo (solo JPA CRUD o SP + JPA) para evitar duplicidad de logica.
+Antes de la versión V2.1, algunos módulos podían eliminar registros físicamente de la base de datos.
 
+En la versión V2.1 se implementó eliminación lógica mediante el campo:
 
+```text
+estado_registro
+```
+
+Valores utilizados:
+
+```text
+ACTIVO
+INACTIVO
+```
+
+Tablas actualizadas:
+
+- paciente
+- medico
+- especialidad
+- horario
+
+La tabla `cita` ya contaba con una lógica similar.
+
+Beneficios:
+
+- Conserva historial de información.
+- Evita pérdida definitiva de registros.
+- Reduce problemas con claves foráneas.
+- Mejora la trazabilidad del sistema.
+- Facilita auditoría futura.
+- Permite recuperar información si fuera necesario.
+
+---
+
+## 8. Flujo general del sistema
+
+El flujo general de una operación dentro del sistema es el siguiente:
+
+```text
+Usuario interactúa con una vista JSP
+        ↓
+Servlet Controller recibe la solicitud
+        ↓
+Service valida reglas de negocio
+        ↓
+DAO ejecuta consulta o procedimiento almacenado
+        ↓
+MySQL responde con datos
+        ↓
+Controller envía resultado a la vista JSP
+```
+
+Ejemplo aplicado al registro de paciente:
+
+```text
+Formulario paciente.jsp
+        ↓
+PacienteController
+        ↓
+PacienteService
+        ↓
+PacienteDAO
+        ↓
+sp_registrar_paciente
+        ↓
+Tabla paciente
+```
+
+---
+
+## 9. Seguridad actual
+
+El sistema cuenta con seguridad básica mediante:
+
+- Login.
+- Manejo de sesión.
+- Filtros de acceso.
+- Roles de usuario.
+- Validación de rutas protegidas.
+- Usuario de base de datos limitado a `localhost`.
+- Permisos de base de datos restringidos a `bd_citasmedicas`.
+- Almacenamiento de contraseñas mediante hashes BCrypt.
+- Operaciones críticas ejecutadas mediante POST y no mediante GET.
+
+Roles disponibles:
+
+```text
+ADMIN
+RECEPCIONISTA
+DOCTOR
+```
+
+Credenciales de prueba del sistema:
+
+```text
+administrador / 123456 / ADMIN
+recepcionista / 123456 / RECEPCIONISTA
+doctor / 123456 / DOCTOR
+```
+
+Estas contraseñas son credenciales de prueba. En la base de datos no se almacenan como texto plano, sino como hashes BCrypt.
+
+---
+
+## 10. Mejoras pendientes de seguridad
+
+Como parte de futuras versiones, se recomienda implementar:
+
+- Protección CSRF.
+- Sanitización de salidas en JSP para prevenir XSS.
+- Mayor control de permisos por rol.
+- Relación directa entre usuario DOCTOR y médico.
+- Manejo centralizado de errores.
+- Retiro de credenciales reales del código fuente.
+- Variables de entorno para credenciales sensibles.
+- Restablecimiento seguro de contraseñas.
+
+---
+
+## 11. Ventajas de la arquitectura actual
+
+La arquitectura actual permite:
+
+- Mejor organización del código.
+- Separación clara de responsabilidades.
+- Fácil mantenimiento.
+- Mejor comprensión para exposición académica.
+- Posibilidad de escalar funcionalidades.
+- Mayor facilidad para aplicar seguridad progresiva.
+- Mejor trazabilidad entre vista, lógica y base de datos.
+
+---
+
+## 12. Estado actual de la versión V2.1
+
+La versión V2.1 se encuentra funcional y validada.
+
+Pruebas realizadas:
+
+- Inicio de sesión.
+- Acceso a módulos principales.
+- Registro de pacientes.
+- Eliminación lógica de pacientes.
+- Registro de especialidades.
+- Eliminación lógica de especialidades.
+- Registro y eliminación lógica de médicos.
+- Registro y eliminación lógica de horarios.
+- Registro de citas.
+- Marcado de citas como ATENDIDA.
+- Anulación de citas.
+- Validación en MySQL de registros con estado `INACTIVO`.
+- Compilación mediante Clean and Build.
+- Ejecución del proyecto en Apache Tomcat.
+
+Resultado:
+
+```text
+Sistema funcional con mejoras de integridad de datos, autenticación y protección de operaciones críticas.
+```
+
+---
+
+## 13. Conclusión técnica
+
+El Sistema de Citas Médicas NovaSalud V2.1 mantiene una arquitectura MVC por capas, con DAO, Service Layer, filtros de seguridad, utilidades de autenticación y conexión JDBC a MySQL.
+
+Las mejoras aplicadas fortalecen la integridad de datos, la autenticación y la seguridad de operaciones críticas. El sistema queda preparado para continuar con mejoras de control de roles, protección CSRF, sanitización de vistas JSP, auditoría y refinamiento funcional.

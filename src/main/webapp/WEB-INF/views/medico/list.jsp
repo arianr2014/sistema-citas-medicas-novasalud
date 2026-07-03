@@ -53,6 +53,12 @@
                     <div class="alert alert-warning">Medico eliminado correctamente.</div>
                 <% } else if ("noexiste".equals(msg)) { %>
                     <div class="alert alert-info">El medico solicitado no existe.</div>
+                <% } else if ("invalid".equals(msg)) { %>
+                    <div class="alert alert-danger">Solicitud invalida.</div>
+                <% } else if ("metodo_invalido".equals(msg)) { %>
+                    <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
+                <% } else if ("errorDelete".equals(msg)) { %>
+                    <div class="alert alert-danger">No se pudo eliminar el medico porque esta relacionado con otros registros.</div>
                 <% } %>
 
                 <div class="card border-0 shadow-sm">
@@ -81,12 +87,28 @@
                                             <td><%= m.getNombreEspecialidad() == null ? "" : m.getNombreEspecialidad() %></td>
                                             <td><%= m.getTelefono() == null ? "" : m.getTelefono() %></td>
                                             <td class="text-center">
-                                                <a href="${pageContext.request.contextPath}/medicos?accion=editar&id=<%= m.getIdMedico() %>" class="btn btn-outline-success btn-sm">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                                <a href="${pageContext.request.contextPath}/medicos?accion=eliminar&id=<%= m.getIdMedico() %>" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar medico?');">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </a>
+                                                <a href="${pageContext.request.contextPath}/medicos?accion=editar&id=<%= m.getIdMedico() %>"
+                                                    class="btn btn-outline-success btn-sm">
+                                                     <i class="bi bi-pencil"></i>
+                                                 </a>
+
+                                                 <!--
+                                                     Fase 3:
+                                                     La eliminación ya no se ejecuta por enlace GET.
+                                                     Ahora se envía mediante formulario POST para evitar modificaciones por URL.
+                                                 -->
+                                                 <form action="${pageContext.request.contextPath}/medicos"
+                                                       method="post"
+                                                       style="display:inline;">
+                                                     <input type="hidden" name="accion" value="eliminar">
+                                                     <input type="hidden" name="id" value="<%= m.getIdMedico() %>">
+
+                                                     <button type="submit"
+                                                             class="btn btn-outline-danger btn-sm"
+                                                             onclick="return confirm('¿Eliminar medico?');">
+                                                         <i class="bi bi-x-lg"></i>
+                                                     </button>
+                                                 </form>
                                             </td>
                                         </tr>
                                     <% } %>

@@ -53,6 +53,10 @@
                     <div class="alert alert-warning">Paciente eliminado correctamente.</div>
                 <% } else if ("noexiste".equals(msg)) { %>
                     <div class="alert alert-info">El paciente solicitado no existe.</div>
+                <% } else if ("invalid".equals(msg)) { %>
+                    <div class="alert alert-danger">Solicitud invalida.</div>
+                <% } else if ("metodo_invalido".equals(msg)) { %>
+                    <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
                 <% } %>
 
                 <div class="card border-0 shadow-sm">
@@ -84,13 +88,25 @@
                                             <td><%= p.getApellidos() %></td>
                                             <td><%= p.getTelefono() == null ? "" : p.getTelefono() %></td>
                                             <td><%= p.getDireccion() == null ? "" : p.getDireccion() %></td>
+                                            
                                             <td class="text-center">
-                                                <a href="${pageContext.request.contextPath}/pacientes?accion=editar&id=<%= p.getIdPaciente() %>" class="btn btn-outline-success btn-sm">
+                                                <a href="${pageContext.request.contextPath}/pacientes?accion=editar&id=<%= p.getIdPaciente() %>"
+                                                   class="btn btn-outline-success btn-sm">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <a href="${pageContext.request.contextPath}/pacientes?accion=eliminar&id=<%= p.getIdPaciente() %>" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Eliminar paciente?');">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </a>
+
+                                                <form action="${pageContext.request.contextPath}/pacientes"
+                                                      method="post"
+                                                      style="display:inline;">
+                                                    <input type="hidden" name="accion" value="eliminar">
+                                                    <input type="hidden" name="id" value="<%= p.getIdPaciente() %>">
+
+                                                    <button type="submit"
+                                                            class="btn btn-outline-danger btn-sm"
+                                                            onclick="return confirm('¿Eliminar paciente?');">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     <% } %>
