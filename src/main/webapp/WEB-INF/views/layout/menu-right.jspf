@@ -1,45 +1,41 @@
-<%
-    /*
-        Fase 4:
-        Menú lateral con control por rol e indicador visual de módulo activo.
+<%@taglib prefix="c" uri="jakarta.tags.core"%>
+<%@taglib prefix="fn" uri="jakarta.tags.functions"%>
 
-        Corrección profesional:
-        Como los controladores hacen forward hacia JSP dentro de /WEB-INF/views,
-        no siempre conviene usar directamente request.getRequestURI().
-        Por eso se toma primero la ruta original del request usando:
-        jakarta.servlet.forward.request_uri.
-    */
-    String rolUsuario = (String) session.getAttribute("rolUsuario");
-    String rol = rolUsuario == null ? "" : rolUsuario.trim().toUpperCase();
+<!--
+    Fase 5.1:
+    Menú lateral con control por rol e indicador visual de módulo activo.
 
-    boolean esAdmin = "ADMIN".equals(rol);
-    boolean esRecepcionista = "RECEPCIONISTA".equals(rol);
-    boolean esDoctor = "DOCTOR".equals(rol);
+    Mejora:
+    Se eliminan scriptlets JSP y salidas directas de expresion JSP.
+    Ahora se usa JSTL y EL para evaluar:
+    - Rol del usuario.
+    - Ruta actual.
+    - Módulo activo.
+-->
 
-    String contextPath = request.getContextPath();
+<c:set var="rolMenu" value="${empty sessionScope.rolUsuario ? '' : fn:toUpperCase(sessionScope.rolUsuario)}" />
 
-    Object forwardUriObj = request.getAttribute("jakarta.servlet.forward.request_uri");
+<c:set var="rutaMenu" value="${requestScope['jakarta.servlet.forward.request_uri']}" />
 
-    if (forwardUriObj == null) {
-        forwardUriObj = request.getAttribute("javax.servlet.forward.request_uri");
-    }
+<c:if test="${empty rutaMenu}">
+    <c:set var="rutaMenu" value="${requestScope['javax.servlet.forward.request_uri']}" />
+</c:if>
 
-    String uri = forwardUriObj == null
-            ? request.getRequestURI()
-            : String.valueOf(forwardUriObj);
+<c:if test="${empty rutaMenu}">
+    <c:set var="rutaMenu" value="${pageContext.request.requestURI}" />
+</c:if>
 
-    String rutaActual = uri.startsWith(contextPath)
-            ? uri.substring(contextPath.length())
-            : uri;
+<c:set var="esAdmin" value="${rolMenu == 'ADMIN'}" />
+<c:set var="esRecepcionista" value="${rolMenu == 'RECEPCIONISTA'}" />
+<c:set var="esDoctor" value="${rolMenu == 'DOCTOR'}" />
 
-    boolean activoInicio = rutaActual.startsWith("/inicio");
-    boolean activoPacientes = rutaActual.startsWith("/pacientes");
-    boolean activoMedicos = rutaActual.startsWith("/medicos");
-    boolean activoAgenda = rutaActual.startsWith("/agenda-medico");
-    boolean activoEspecialidades = rutaActual.startsWith("/especialidades");
-    boolean activoHorarios = rutaActual.startsWith("/horarios");
-    boolean activoCitas = rutaActual.startsWith("/citas");
-%>
+<c:set var="activoInicio" value="${fn:contains(rutaMenu, '/inicio')}" />
+<c:set var="activoPacientes" value="${fn:contains(rutaMenu, '/pacientes')}" />
+<c:set var="activoMedicos" value="${fn:contains(rutaMenu, '/medicos')}" />
+<c:set var="activoAgenda" value="${fn:contains(rutaMenu, '/agenda-medico')}" />
+<c:set var="activoEspecialidades" value="${fn:contains(rutaMenu, '/especialidades')}" />
+<c:set var="activoHorarios" value="${fn:contains(rutaMenu, '/horarios')}" />
+<c:set var="activoCitas" value="${fn:contains(rutaMenu, '/citas')}" />
 
 <style>
     /*
@@ -68,70 +64,71 @@
 
     <div class="list-group list-group-flush menu-links">
 
-        <% if (esAdmin) { %>
+        <c:if test="${esAdmin}">
             <a href="${pageContext.request.contextPath}/inicio"
-               class="list-group-item list-group-item-action <%= activoInicio ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoInicio ? 'menu-activo' : ''}">
                 <i class="bi bi-house-door me-2"></i>Inicio
             </a>
 
             <a href="${pageContext.request.contextPath}/pacientes"
-               class="list-group-item list-group-item-action <%= activoPacientes ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoPacientes ? 'menu-activo' : ''}">
                 <i class="bi bi-people me-2"></i>Pacientes
             </a>
 
             <a href="${pageContext.request.contextPath}/medicos"
-               class="list-group-item list-group-item-action <%= activoMedicos ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoMedicos ? 'menu-activo' : ''}">
                 <i class="bi bi-person-badge me-2"></i>Medicos
             </a>
 
             <a href="${pageContext.request.contextPath}/agenda-medico"
-               class="list-group-item list-group-item-action <%= activoAgenda ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoAgenda ? 'menu-activo' : ''}">
                 <i class="bi bi-journal-medical me-2"></i>Agenda Medica
             </a>
 
             <a href="${pageContext.request.contextPath}/especialidades"
-               class="list-group-item list-group-item-action <%= activoEspecialidades ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoEspecialidades ? 'menu-activo' : ''}">
                 <i class="bi bi-tags me-2"></i>Especialidades
             </a>
 
             <a href="${pageContext.request.contextPath}/horarios"
-               class="list-group-item list-group-item-action <%= activoHorarios ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoHorarios ? 'menu-activo' : ''}">
                 <i class="bi bi-clock-history me-2"></i>Horarios
             </a>
 
             <a href="${pageContext.request.contextPath}/citas"
-               class="list-group-item list-group-item-action <%= activoCitas ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoCitas ? 'menu-activo' : ''}">
                 <i class="bi bi-calendar-check me-2"></i>Citas
             </a>
-        <% } %>
+        </c:if>
 
-        <% if (esRecepcionista) { %>
+        <c:if test="${esRecepcionista}">
             <a href="${pageContext.request.contextPath}/pacientes"
-               class="list-group-item list-group-item-action <%= activoPacientes ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoPacientes ? 'menu-activo' : ''}">
                 <i class="bi bi-people me-2"></i>Pacientes
             </a>
 
             <a href="${pageContext.request.contextPath}/citas"
-               class="list-group-item list-group-item-action <%= activoCitas ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoCitas ? 'menu-activo' : ''}">
                 <i class="bi bi-calendar-check me-2"></i>Citas
             </a>
 
             <a href="${pageContext.request.contextPath}/agenda-medico"
-               class="list-group-item list-group-item-action <%= activoAgenda ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoAgenda ? 'menu-activo' : ''}">
                 <i class="bi bi-journal-medical me-2"></i>Agenda Medica
             </a>
-        <% } %>
+        </c:if>
 
-        <% if (esDoctor) { %>
+        <c:if test="${esDoctor}">
             <a href="${pageContext.request.contextPath}/agenda-medico"
-               class="list-group-item list-group-item-action <%= activoAgenda ? "menu-activo" : "" %>">
+               class="list-group-item list-group-item-action ${activoAgenda ? 'menu-activo' : ''}">
                 <i class="bi bi-journal-medical me-2"></i>Agenda Medica
             </a>
-        <% } %>
+        </c:if>
 
         <a href="${pageContext.request.contextPath}/logout"
            class="list-group-item list-group-item-action text-danger">
             <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesion
         </a>
+
     </div>
 </aside>

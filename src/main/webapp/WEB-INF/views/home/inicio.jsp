@@ -1,12 +1,13 @@
-<%@page import="java.util.Map"%>
-<%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<% request.setAttribute("pageTitle", "Inicio - Citas Medicas"); %>
+<%@taglib prefix="c" uri="jakarta.tags.core"%>
+
+<c:set var="pageTitle" value="Inicio - Citas Medicas" scope="request" />
+
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
 <body class="bg-light">
-    
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
         <div class="container-fluid px-4">
 
@@ -22,8 +23,9 @@
             <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
 
             <!--
-                Fase 4:
-                Se muestra el módulo actual, el usuario autenticado y el rol activo.
+                Fase 5.1:
+                Se mantiene el módulo actual, usuario autenticado y rol activo
+                sin usar salidas directas JSP.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
                 <span class="text-white small">Modulo: Inicio</span>
@@ -37,42 +39,60 @@
 
     <main class="container-fluid py-4 px-4">
         <div class="row g-4">
+
             <div class="col-12 col-lg-3 order-1 order-lg-1">
                 <%@ include file="/WEB-INF/views/layout/menu-right.jspf" %>
             </div>
-            <div class="col-12 col-lg-9 order-2 order-lg-2">
-                <h4 class="text-success fw-bold mb-3"><i class="bi bi-house"></i> Dashboard</h4>
-                <p class="text-muted mb-3">Resumen operativo del dia y tendencia semanal.</p>
 
-                <% Map<String, Integer> citasPorEstado = (Map<String, Integer>) request.getAttribute("citasPorEstadoHoy"); %>
-                <% Integer medicosTurnoHoy = (Integer) request.getAttribute("medicosTurnoHoy"); %>
-                <% List<Map.Entry<String, Integer>> topEspecialidades = (List<Map.Entry<String, Integer>>) request.getAttribute("topEspecialidades"); %>
-                <% Map<String, Integer> resumenSemanal = (Map<String, Integer>) request.getAttribute("resumenSemanal"); %>
+            <div class="col-12 col-lg-9 order-2 order-lg-2">
+                <h4 class="text-success fw-bold mb-3">
+                    <i class="bi bi-house"></i>
+                    Dashboard
+                </h4>
+
+                <p class="text-muted mb-3">
+                    Resumen operativo del dia y tendencia semanal.
+                </p>
 
                 <div class="row g-3 mb-3">
-                    <% if (citasPorEstado != null) {
-                           for (Map.Entry<String, Integer> estado : citasPorEstado.entrySet()) {
-                    %>
+
+                    <c:forEach var="estado" items="${citasPorEstadoHoy}">
                         <div class="col-12 col-sm-6 col-xl-3">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body">
                                     <div class="text-muted small">Citas hoy</div>
-                                    <div class="fw-semibold"><%= estado.getKey() %></div>
-                                    <div class="display-6 fw-bold text-success"><%= estado.getValue() %></div>
+
+                                    <div class="fw-semibold">
+                                        <c:out value="${estado.key}" />
+                                    </div>
+
+                                    <div class="display-6 fw-bold text-success">
+                                        <c:out value="${estado.value}" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    <%     }
-                       } %>
+                    </c:forEach>
+
                 </div>
 
                 <div class="row g-3">
+
                     <div class="col-12 col-xl-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-person-badge"></i> Medicos en turno hoy</h6>
-                                <div class="display-5 fw-bold text-success mb-2"><%= medicosTurnoHoy == null ? 0 : medicosTurnoHoy %></div>
-                                <p class="text-muted mb-0">Cantidad de medicos con citas activas para hoy.</p>
+                                <h6 class="fw-bold mb-3">
+                                    <i class="bi bi-person-badge"></i>
+                                    Medicos en turno hoy
+                                </h6>
+
+                                <div class="display-5 fw-bold text-success mb-2">
+                                    <c:out value="${empty medicosTurnoHoy ? 0 : medicosTurnoHoy}" />
+                                </div>
+
+                                <p class="text-muted mb-0">
+                                    Cantidad de medicos con citas activas para hoy.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -80,19 +100,33 @@
                     <div class="col-12 col-xl-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-award"></i> Top 3 especialidades (semana)</h6>
+                                <h6 class="fw-bold mb-3">
+                                    <i class="bi bi-award"></i>
+                                    Top 3 especialidades (semana)
+                                </h6>
+
                                 <ul class="list-group list-group-flush">
-                                    <% if (topEspecialidades == null || topEspecialidades.isEmpty()) { %>
-                                        <li class="list-group-item px-0 text-muted">Sin datos en la semana.</li>
-                                    <% } else {
-                                           for (Map.Entry<String, Integer> item : topEspecialidades) {
-                                    %>
-                                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                            <span><%= item.getKey() %></span>
-                                            <span class="badge bg-success rounded-pill"><%= item.getValue() %></span>
-                                        </li>
-                                    <%   }
-                                       } %>
+                                    <c:choose>
+                                        <c:when test="${empty topEspecialidades}">
+                                            <li class="list-group-item px-0 text-muted">
+                                                Sin datos en la semana.
+                                            </li>
+                                        </c:when>
+
+                                        <c:otherwise>
+                                            <c:forEach var="item" items="${topEspecialidades}">
+                                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                                    <span>
+                                                        <c:out value="${item.key}" />
+                                                    </span>
+
+                                                    <span class="badge bg-success rounded-pill">
+                                                        <c:out value="${item.value}" />
+                                                    </span>
+                                                </li>
+                                            </c:forEach>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </ul>
                             </div>
                         </div>
@@ -101,45 +135,48 @@
                     <div class="col-12 col-xl-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body">
-                                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart"></i> Resumen semanal</h6>
+                                <h6 class="fw-bold mb-3">
+                                    <i class="bi bi-bar-chart"></i>
+                                    Resumen semanal
+                                </h6>
+
                                 <div class="dashboard-chart-wrap">
                                     <canvas id="chartResumenSemanal"></canvas>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         (function () {
+            /*
+                Fase 5.1:
+                Datos del resumen semanal renderizados con JSTL.
+                Se elimina el uso de salidas directas JSP dentro del script.
+            */
             const labels = [
-                <% if (resumenSemanal != null) {
-                       int idx = 0;
-                       for (Map.Entry<String, Integer> punto : resumenSemanal.entrySet()) {
-                %>
-                    "<%= punto.getKey() %>"<%= idx < resumenSemanal.size() - 1 ? "," : "" %>
-                <%         idx++;
-                       }
-                   } %>
+                <c:forEach var="punto" items="${resumenSemanal}" varStatus="estadoLoop">
+                    "<c:out value="${punto.key}" />"<c:if test="${not estadoLoop.last}">,</c:if>
+                </c:forEach>
             ];
 
             const data = [
-                <% if (resumenSemanal != null) {
-                       int idx = 0;
-                       for (Map.Entry<String, Integer> punto : resumenSemanal.entrySet()) {
-                %>
-                    <%= punto.getValue() %><%= idx < resumenSemanal.size() - 1 ? "," : "" %>
-                <%         idx++;
-                       }
-                   } %>
+                <c:forEach var="punto" items="${resumenSemanal}" varStatus="estadoLoop">
+                    <c:out value="${punto.value}" /><c:if test="${not estadoLoop.last}">,</c:if>
+                </c:forEach>
             ];
 
             const canvas = document.getElementById("chartResumenSemanal");
+
             if (!canvas) {
                 return;
             }
@@ -165,7 +202,9 @@
                     animation: false,
                     resizeDelay: 200,
                     plugins: {
-                        legend: { display: false }
+                        legend: {
+                            display: false
+                        }
                     },
                     scales: {
                         y: {
@@ -179,5 +218,6 @@
             });
         })();
     </script>
+
 </body>
 </html>

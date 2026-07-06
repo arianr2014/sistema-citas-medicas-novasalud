@@ -5,13 +5,17 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<% request.setAttribute("pageTitle", "Acceso denegado"); %>
+<%@taglib prefix="c" uri="jakarta.tags.core"%>
+
+<c:set var="pageTitle" value="Acceso denegado" scope="request" />
+
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
         <div class="container-fluid px-4">
+
             <button class="btn btn-outline-light d-lg-none me-2 mobile-menu-toggle"
                     type="button"
                     data-bs-toggle="offcanvas"
@@ -22,11 +26,16 @@
             </button>
 
             <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+
+            <!--
+                Fase 5.1:
+                Se mantiene visible el contexto de sesión sin usar salidas JSP directas.
+            -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
                 <span class="text-white small">Acceso denegado</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
-            
+
         </div>
     </nav>
 
@@ -34,6 +43,7 @@
 
     <main class="container-fluid py-4 px-4">
         <div class="row g-4">
+
             <div class="col-12 col-lg-3 order-1 order-lg-1">
                 <%@ include file="/WEB-INF/views/layout/menu-right.jspf" %>
             </div>
@@ -60,12 +70,12 @@
                         <div class="text-start mx-auto mb-4" style="max-width: 700px;">
                             <p class="mb-1">
                                 <strong>Rol actual:</strong>
-                                <%= request.getAttribute("rolUsuario") == null ? "" : request.getAttribute("rolUsuario") %>
+                                <c:out value="${rolUsuario}" />
                             </p>
 
                             <p class="mb-1">
                                 <strong>Ruta solicitada:</strong>
-                                <%= request.getAttribute("rutaBloqueada") == null ? "" : request.getAttribute("rutaBloqueada") %>
+                                <c:out value="${rutaBloqueada}" />
                             </p>
 
                             <p class="mb-0 text-muted">
@@ -73,19 +83,22 @@
                             </p>
                         </div>
 
-                        <a href="${pageContext.request.contextPath}<%= request.getAttribute("rutaInicio") %>"
+                        <a href="${pageContext.request.contextPath}${rutaInicio}"
                            class="btn btn-success">
-                            <i class="bi bi-arrow-left-circle"></i> Volver a mi módulo principal
+                            <i class="bi bi-arrow-left-circle"></i>
+                            Volver a mi módulo principal
                         </a>
 
                         <a href="${pageContext.request.contextPath}/logout"
                            class="btn btn-outline-danger ms-2">
-                            <i class="bi bi-box-arrow-right"></i> Cerrar sesion
+                            <i class="bi bi-box-arrow-right"></i>
+                            Cerrar sesion
                         </a>
 
                     </div>
                 </div>
             </div>
+
         </div>
     </main>
 

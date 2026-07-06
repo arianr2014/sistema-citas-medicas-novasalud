@@ -1,41 +1,28 @@
-<%
-    /*
-        Fase 4:
-        Fragmento visual para mostrar la identidad de sesión.
+<%@taglib prefix="c" uri="jakarta.tags.core"%>
 
-        Corrección:
-        Este fragmento se encapsula dentro de un bloque propio para evitar
-        errores de variables duplicadas cuando el JSP se incluye más de una vez
-        en una misma página.
-    */
-%>
+<!--
+    Fase 5.1:
+    Fragmento visual para mostrar la identidad de sesión sin usar salidas directas JSP.
 
-<%
-{
-    String usuarioSesionHeader = session == null ? "" : String.valueOf(session.getAttribute("usuarioLogeado"));
-    String rolSesionHeader = session == null ? "" : String.valueOf(session.getAttribute("rolUsuario"));
+    Muestra:
+    - Usuario autenticado.
+    - Rol activo.
 
-    if ("null".equalsIgnoreCase(usuarioSesionHeader)) {
-        usuarioSesionHeader = "";
-    }
-
-    if ("null".equalsIgnoreCase(rolSesionHeader)) {
-        rolSesionHeader = "";
-    }
-%>
+    Se usa c:out para evitar imprimir valores dinámicos sin escape.
+-->
 
 <div class="d-flex flex-column flex-md-row align-items-md-center gap-1 gap-md-2 ms-auto">
     <span class="text-white small">
         <i class="bi bi-person-circle"></i>
-        Usuario: <strong><%= usuarioSesionHeader %></strong>
+        Usuario:
+        <strong>
+            <c:out value="${sessionScope.usuarioLogeado}" />
+        </strong>
     </span>
 
     <span class="badge bg-light text-primary border">
         <i class="bi bi-shield-check"></i>
-        Rol: <%= rolSesionHeader %>
+        Rol:
+        <c:out value="${sessionScope.rolUsuario}" />
     </span>
 </div>
-
-<%
-}
-%>
