@@ -457,6 +457,55 @@ doctor / 123456 / DOCTOR
 
 Estas contraseñas son credenciales de prueba. En la base de datos no se almacenan como texto plano, sino como hashes BCrypt.
 
+## Control de acceso por roles en V2.1
+
+En la Fase 4 de la versión V2.1 se reforzó el control de acceso por roles mediante `AuthFilter.java`.
+
+El sistema aplica un esquema RBAC, Role-Based Access Control, donde cada usuario autenticado tiene un rol y dicho rol determina a qué módulos puede acceder.
+
+Roles definidos:
+
+```text
+ADMIN
+RECEPCIONISTA
+DOCTOR
+```
+
+Matriz de acceso aplicada:
+
+| Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
+|---|---:|---:|---:|
+| Inicio / Dashboard | Sí | No | No |
+| Pacientes | Sí | Sí | No |
+| Médicos | Sí | No | No |
+| Especialidades | Sí | No | No |
+| Horarios | Sí | No | No |
+| Citas | Sí | Sí | No |
+| Agenda Médica | Sí | Sí | Sí |
+
+El filtro no solo protege el menú visible, sino que también bloquea el acceso manual por URL. Esto evita que un usuario ingrese directamente a rutas no autorizadas escribiéndolas en el navegador.
+
+Ejemplo:
+
+```text
+/medicos
+/especialidades
+/horarios
+```
+
+Si un usuario sin permiso intenta acceder a una ruta restringida, el sistema lo redirige a una página personalizada de acceso denegado.
+
+Archivos relacionados:
+
+- `AuthFilter.java`
+- `AuthController.java`
+- `AccesoDenegadoController.java`
+- `error/acceso-denegado.jsp`
+- `layout/menu-right.jspf`
+- `layout/menu-mobile.jspf`
+- `layout/usuario-sesion.jspf`
+
+También se agregó un indicador visual del módulo activo en el menú y una identificación de sesión en la barra superior, mostrando el usuario autenticado y el rol activo.
 ---
 
 ## 10. Mejoras pendientes de seguridad

@@ -1,33 +1,137 @@
 <%
+    /*
+        Fase 4:
+        Menú lateral con control por rol e indicador visual de módulo activo.
+
+        Corrección profesional:
+        Como los controladores hacen forward hacia JSP dentro de /WEB-INF/views,
+        no siempre conviene usar directamente request.getRequestURI().
+        Por eso se toma primero la ruta original del request usando:
+        jakarta.servlet.forward.request_uri.
+    */
     String rolUsuario = (String) session.getAttribute("rolUsuario");
     String rol = rolUsuario == null ? "" : rolUsuario.trim().toUpperCase();
+
     boolean esAdmin = "ADMIN".equals(rol);
     boolean esRecepcionista = "RECEPCIONISTA".equals(rol);
     boolean esDoctor = "DOCTOR".equals(rol);
+
+    String contextPath = request.getContextPath();
+
+    Object forwardUriObj = request.getAttribute("jakarta.servlet.forward.request_uri");
+
+    if (forwardUriObj == null) {
+        forwardUriObj = request.getAttribute("javax.servlet.forward.request_uri");
+    }
+
+    String uri = forwardUriObj == null
+            ? request.getRequestURI()
+            : String.valueOf(forwardUriObj);
+
+    String rutaActual = uri.startsWith(contextPath)
+            ? uri.substring(contextPath.length())
+            : uri;
+
+    boolean activoInicio = rutaActual.startsWith("/inicio");
+    boolean activoPacientes = rutaActual.startsWith("/pacientes");
+    boolean activoMedicos = rutaActual.startsWith("/medicos");
+    boolean activoAgenda = rutaActual.startsWith("/agenda-medico");
+    boolean activoEspecialidades = rutaActual.startsWith("/especialidades");
+    boolean activoHorarios = rutaActual.startsWith("/horarios");
+    boolean activoCitas = rutaActual.startsWith("/citas");
 %>
+
+<style>
+    /*
+        Indicador visual del módulo activo.
+        Se usa una clase propia para evitar conflictos con Bootstrap o estilos previos.
+    */
+    .menu-links .menu-activo {
+        background-color: #0d6efd !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border-left: 6px solid #084298 !important;
+    }
+
+    .menu-links .menu-activo i {
+        color: #ffffff !important;
+    }
+
+    .menu-links .menu-activo:hover {
+        background-color: #0b5ed7 !important;
+        color: #ffffff !important;
+    }
+</style>
+
 <aside class="card shadow-sm border-0 sticky-top menu-sidebar-card d-none d-lg-block">
     <div class="card-header bg-success text-white fw-semibold">Menu</div>
+
     <div class="list-group list-group-flush menu-links">
+
         <% if (esAdmin) { %>
-            <a href="${pageContext.request.contextPath}/inicio" class="list-group-item list-group-item-action"><i class="bi bi-house-door me-2"></i>Inicio</a>
-            <a href="${pageContext.request.contextPath}/pacientes" class="list-group-item list-group-item-action"><i class="bi bi-people me-2"></i>Pacientes</a>
-            <a href="${pageContext.request.contextPath}/medicos" class="list-group-item list-group-item-action"><i class="bi bi-person-badge me-2"></i>Medicos</a>
-            <a href="${pageContext.request.contextPath}/agenda-medico" class="list-group-item list-group-item-action"><i class="bi bi-journal-medical me-2"></i>Agenda Medica</a>
-            <a href="${pageContext.request.contextPath}/especialidades" class="list-group-item list-group-item-action"><i class="bi bi-tags me-2"></i>Especialidades</a>
-            <a href="${pageContext.request.contextPath}/horarios" class="list-group-item list-group-item-action"><i class="bi bi-clock-history me-2"></i>Horarios</a>
-            <a href="${pageContext.request.contextPath}/citas" class="list-group-item list-group-item-action"><i class="bi bi-calendar-check me-2"></i>Citas</a>
+            <a href="${pageContext.request.contextPath}/inicio"
+               class="list-group-item list-group-item-action <%= activoInicio ? "menu-activo" : "" %>">
+                <i class="bi bi-house-door me-2"></i>Inicio
+            </a>
+
+            <a href="${pageContext.request.contextPath}/pacientes"
+               class="list-group-item list-group-item-action <%= activoPacientes ? "menu-activo" : "" %>">
+                <i class="bi bi-people me-2"></i>Pacientes
+            </a>
+
+            <a href="${pageContext.request.contextPath}/medicos"
+               class="list-group-item list-group-item-action <%= activoMedicos ? "menu-activo" : "" %>">
+                <i class="bi bi-person-badge me-2"></i>Medicos
+            </a>
+
+            <a href="${pageContext.request.contextPath}/agenda-medico"
+               class="list-group-item list-group-item-action <%= activoAgenda ? "menu-activo" : "" %>">
+                <i class="bi bi-journal-medical me-2"></i>Agenda Medica
+            </a>
+
+            <a href="${pageContext.request.contextPath}/especialidades"
+               class="list-group-item list-group-item-action <%= activoEspecialidades ? "menu-activo" : "" %>">
+                <i class="bi bi-tags me-2"></i>Especialidades
+            </a>
+
+            <a href="${pageContext.request.contextPath}/horarios"
+               class="list-group-item list-group-item-action <%= activoHorarios ? "menu-activo" : "" %>">
+                <i class="bi bi-clock-history me-2"></i>Horarios
+            </a>
+
+            <a href="${pageContext.request.contextPath}/citas"
+               class="list-group-item list-group-item-action <%= activoCitas ? "menu-activo" : "" %>">
+                <i class="bi bi-calendar-check me-2"></i>Citas
+            </a>
         <% } %>
 
         <% if (esRecepcionista) { %>
-            <a href="${pageContext.request.contextPath}/pacientes" class="list-group-item list-group-item-action"><i class="bi bi-people me-2"></i>Pacientes</a>
-            <a href="${pageContext.request.contextPath}/citas" class="list-group-item list-group-item-action"><i class="bi bi-calendar-check me-2"></i>Citas</a>
-            <a href="${pageContext.request.contextPath}/agenda-medico" class="list-group-item list-group-item-action"><i class="bi bi-journal-medical me-2"></i>Agenda Medica</a>
+            <a href="${pageContext.request.contextPath}/pacientes"
+               class="list-group-item list-group-item-action <%= activoPacientes ? "menu-activo" : "" %>">
+                <i class="bi bi-people me-2"></i>Pacientes
+            </a>
+
+            <a href="${pageContext.request.contextPath}/citas"
+               class="list-group-item list-group-item-action <%= activoCitas ? "menu-activo" : "" %>">
+                <i class="bi bi-calendar-check me-2"></i>Citas
+            </a>
+
+            <a href="${pageContext.request.contextPath}/agenda-medico"
+               class="list-group-item list-group-item-action <%= activoAgenda ? "menu-activo" : "" %>">
+                <i class="bi bi-journal-medical me-2"></i>Agenda Medica
+            </a>
         <% } %>
 
         <% if (esDoctor) { %>
-            <a href="${pageContext.request.contextPath}/agenda-medico" class="list-group-item list-group-item-action"><i class="bi bi-journal-medical me-2"></i>Agenda Medica</a>
+            <a href="${pageContext.request.contextPath}/agenda-medico"
+               class="list-group-item list-group-item-action <%= activoAgenda ? "menu-activo" : "" %>">
+                <i class="bi bi-journal-medical me-2"></i>Agenda Medica
+            </a>
         <% } %>
 
-        <a href="${pageContext.request.contextPath}/logout" class="list-group-item list-group-item-action text-danger"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesion</a>
+        <a href="${pageContext.request.contextPath}/logout"
+           class="list-group-item list-group-item-action text-danger">
+            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesion
+        </a>
     </div>
 </aside>

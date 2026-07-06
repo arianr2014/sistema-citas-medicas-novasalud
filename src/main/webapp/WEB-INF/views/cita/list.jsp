@@ -8,13 +8,30 @@
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
 <body class="bg-light">
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
         <div class="container-fluid px-4">
-            <button class="btn btn-outline-light d-lg-none me-2 mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-label="Abrir menu">
+
+            <button class="btn btn-outline-light d-lg-none me-2 mobile-menu-toggle"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#sidebarMenu"
+                    aria-controls="sidebarMenu"
+                    aria-label="Abrir menu">
                 <i class="bi bi-list fs-4"></i>
             </button>
+
             <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
-            <span class="text-white small">Modulo: Citas</span>
+
+            <!--
+                Fase 4:
+                Se muestra el módulo actual, el usuario autenticado y el rol activo.
+            -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
+                <span class="text-white small">Modulo: Citas</span>
+                <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
+            </div>
+
         </div>
     </nav>
 

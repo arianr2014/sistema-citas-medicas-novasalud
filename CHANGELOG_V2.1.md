@@ -195,3 +195,61 @@ La versión V2.1 queda consolidada con las siguientes mejoras:
 - Migraciones creadas.
 - Documentación técnica actualizada.
 - Pruebas funcionales satisfactorias.
+
+---
+
+## Fase 4 - Control de roles, acceso denegado personalizado e identidad de sesión
+
+### Objetivo
+
+Reforzar la seguridad del sistema mediante control de acceso por roles, evitando que usuarios no autorizados ingresen a módulos restringidos mediante manipulación directa de URL.
+
+### Problema identificado
+
+Aunque el sistema ya contaba con roles como `ADMIN`, `RECEPCIONISTA` y `DOCTOR`, era necesario reforzar visual y técnicamente el control de acceso.
+
+También se identificó que el usuario no tenía una referencia clara de qué sesión estaba activa, qué rol estaba usando y en qué módulo se encontraba.
+
+### Cambios realizados
+
+1. Se reforzó `AuthFilter.java` para validar rutas protegidas según el rol del usuario.
+2. Se actualizó `AuthController.java` para mejorar el manejo de sesión y redirección por rol.
+3. Se creó `AccesoDenegadoController.java`.
+4. Se creó la vista personalizada `acceso-denegado.jsp`.
+5. Se actualizó el menú lateral para mostrar solo las opciones permitidas por rol.
+6. Se implementó indicador visual del módulo activo en el menú.
+7. Se creó el fragmento reutilizable `usuario-sesion.jspf`.
+8. Se agregó visualización del usuario autenticado y rol activo en la barra superior.
+9. Se validó el acceso manual por URL para cada rol.
+
+### Matriz de acceso aplicada
+
+| Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
+|---|---:|---:|---:|
+| Inicio / Dashboard | Sí | No | No |
+| Pacientes | Sí | Sí | No |
+| Médicos | Sí | No | No |
+| Especialidades | Sí | No | No |
+| Horarios | Sí | No | No |
+| Citas | Sí | Sí | No |
+| Agenda Médica | Sí | Sí | Sí |
+| Cerrar sesión | Sí | Sí | Sí |
+
+### Pruebas realizadas
+
+- Inicio de sesión como administrador.
+- Inicio de sesión como recepcionista.
+- Inicio de sesión como doctor.
+- Validación de menú visible según rol.
+- Validación de acceso permitido según rol.
+- Intento de ingreso manual a rutas no autorizadas.
+- Visualización de página personalizada de acceso denegado.
+- Verificación del indicador visual del menú activo.
+- Verificación de usuario y rol visibles en la barra superior.
+- Ejecución de Clean and Build en Apache NetBeans.
+
+### Resultado
+
+La Fase 4 fue completada correctamente. El sistema ahora aplica control de acceso por roles, bloquea rutas no autorizadas, muestra una página personalizada de acceso denegado y permite identificar claramente el usuario y rol activo dentro del sistema.
+
+Esta mejora responde a buenas prácticas de seguridad web relacionadas con control de acceso y prevención de fallas tipo Broken Access Control.

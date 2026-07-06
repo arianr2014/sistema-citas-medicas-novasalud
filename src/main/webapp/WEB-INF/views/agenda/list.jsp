@@ -13,7 +13,11 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
             <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
-            <span class="text-white small">Modulo: Agenda Medica</span>
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
+                <span class="text-white small">Modulo: Agenda Medica</span>
+                <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
+            </div>
+            
         </div>
     </nav>
 

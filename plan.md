@@ -198,23 +198,48 @@ Completado.
 
 ## 6. Fase 4 - Control de roles y acceso
 
+## 6. Fase 4 - Control de roles y acceso
+
 ### Objetivo
 
-Reforzar el control de acceso según el rol del usuario autenticado.
+Reforzar el control de acceso según el rol del usuario autenticado, evitando que usuarios no autorizados ingresen a módulos restringidos mediante manipulación directa de URL.
 
-### Actividades propuestas
+### Actividades realizadas
 
-1. Revisar `AuthFilter.java`.
-2. Confirmar rutas permitidas por rol.
-3. Validar que ADMIN tenga acceso completo.
-4. Validar que RECEPCIONISTA tenga acceso operativo.
-5. Validar que DOCTOR solo tenga acceso a su agenda.
-6. Evaluar relación entre usuario DOCTOR y registro de médico.
-7. Documentar matriz de permisos.
+1. Se revisó `AuthFilter.java`.
+2. Se revisó `AuthController.java`.
+3. Se validó cómo se guarda el usuario y rol en sesión.
+4. Se definió una matriz de permisos por rol.
+5. Se reforzó el filtro de autorización por rutas.
+6. Se creó una página personalizada de acceso denegado.
+7. Se creó `AccesoDenegadoController.java`.
+8. Se creó la vista `error/acceso-denegado.jsp`.
+9. Se actualizó el menú lateral por rol.
+10. Se implementó indicador visual del módulo activo.
+11. Se creó el fragmento `usuario-sesion.jspf`.
+12. Se mostró el usuario autenticado y rol activo en la barra superior.
+13. Se probaron accesos permitidos y bloqueados con los roles ADMIN, RECEPCIONISTA y DOCTOR.
+
+### Matriz de acceso aplicada
+
+| Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
+|---|---:|---:|---:|
+| Inicio / Dashboard | Sí | No | No |
+| Pacientes | Sí | Sí | No |
+| Médicos | Sí | No | No |
+| Especialidades | Sí | No | No |
+| Horarios | Sí | No | No |
+| Citas | Sí | Sí | No |
+| Agenda Médica | Sí | Sí | Sí |
+| Cerrar sesión | Sí | Sí | Sí |
+
+### Resultado
+
+La Fase 4 fue completada correctamente. El sistema ahora protege rutas según el rol del usuario, muestra una página personalizada de acceso denegado y permite identificar claramente el usuario y rol activo en la barra superior.
 
 ### Estado
 
-Pendiente.
+Completado.
 
 ---
 
@@ -281,8 +306,8 @@ Pendiente.
 1. Fase 1 completada: integridad de datos y eliminación lógica.
 2. Fase 2 completada: hash de contraseñas con BCrypt.
 3. Fase 3 completada: protección de operaciones críticas mediante POST.
-4. Próxima fase: reforzar acceso por roles.
-5. Revisar salidas JSP.
+4. Fase 4 completada: control de roles, acceso denegado e identidad de sesión.
+5. Próxima fase: seguridad en vistas JSP y prevención XSS.
 6. Mejorar mensajes funcionales.
 7. Preparar documentación y presentación final.
 

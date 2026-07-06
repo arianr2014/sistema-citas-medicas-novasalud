@@ -327,6 +327,41 @@ Acciones protegidas:
 
 También se incorporó una validación para impedir que estas operaciones se ejecuten manipulando directamente la URL del navegador.
 
+### 10.4. Control de roles, acceso denegado e identidad de sesión
+
+En la Fase 4 de la versión V2.1 se reforzó el control de acceso por roles del sistema.
+
+El sistema maneja tres roles principales:
+
+```text
+ADMIN
+RECEPCIONISTA
+DOCTOR
+```
+
+Se aplicó una matriz de permisos para limitar el acceso a los módulos según el rol del usuario autenticado.
+
+| Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
+|---|---:|---:|---:|
+| Inicio / Dashboard | Sí | No | No |
+| Pacientes | Sí | Sí | No |
+| Médicos | Sí | No | No |
+| Especialidades | Sí | No | No |
+| Horarios | Sí | No | No |
+| Citas | Sí | Sí | No |
+| Agenda Médica | Sí | Sí | Sí |
+
+También se implementó una página personalizada de acceso denegado. Si un usuario intenta ingresar manualmente a una ruta no autorizada, el sistema no permite el acceso y muestra un mensaje claro con el rol actual y la ruta solicitada.
+
+Además, se incorporó una identificación visual de sesión en la barra superior del sistema, mostrando:
+
+```text
+Módulo actual
+Usuario autenticado
+Rol activo
+```
+
+Esto mejora la seguridad, la trazabilidad y la experiencia de uso del sistema.
 ---
 
 ## 11. Procedimientos almacenados corregidos
@@ -421,6 +456,7 @@ Como mejoras futuras se recomienda implementar:
 - Manejo centralizado de errores.
 - Variables de entorno para credenciales sensibles.
 - Recuperación o restablecimiento seguro de contraseñas.
+- El sistema aplica control de acceso por roles mediante `AuthFilter.java`, bloqueando rutas no autorizadas aunque el usuario intente acceder manualmente por URL.
 
 ---
 
