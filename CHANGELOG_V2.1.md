@@ -2,7 +2,7 @@
 
 ## Versión
 
-V2.1 - Mejora de integridad de datos, seguridad de autenticación y protección de operaciones críticas.
+V2.1 - Mejora de integridad de datos, seguridad de autenticación, protección de operaciones críticas, control de acceso por roles y seguridad en vistas JSP.
 
 ---
 
@@ -184,20 +184,6 @@ La Fase 3 fue completada correctamente. Las operaciones críticas ya no se ejecu
 
 ---
 
-## Estado general de la versión V2.1
-
-La versión V2.1 queda consolidada con las siguientes mejoras:
-
-- Eliminación lógica.
-- Hash de contraseñas con BCrypt.
-- Protección de operaciones críticas mediante POST.
-- Scripts SQL actualizados.
-- Migraciones creadas.
-- Documentación técnica actualizada.
-- Pruebas funcionales satisfactorias.
-
----
-
 ## Fase 4 - Control de roles, acceso denegado personalizado e identidad de sesión
 
 ### Objetivo
@@ -215,7 +201,7 @@ También se identificó que el usuario no tenía una referencia clara de qué se
 1. Se reforzó `AuthFilter.java` para validar rutas protegidas según el rol del usuario.
 2. Se actualizó `AuthController.java` para mejorar el manejo de sesión y redirección por rol.
 3. Se creó `AccesoDenegadoController.java`.
-4. Se creó la vista personalizada `acceso-denegado.jsp`.
+4. Se creó la vista personalizada `error/acceso-denegado.jsp`.
 5. Se actualizó el menú lateral para mostrar solo las opciones permitidas por rol.
 6. Se implementó indicador visual del módulo activo en el menú.
 7. Se creó el fragmento reutilizable `usuario-sesion.jspf`.
@@ -327,3 +313,109 @@ Se probó texto malicioso controlado en buscadores, formularios y campos editabl
 La Fase 5 fue completada correctamente. El sistema ahora muestra datos dinámicos de forma más segura en las vistas JSP y reduce el riesgo de XSS reflejado o almacenado.
 
 Esta mejora fortalece la capa de presentación del sistema dentro de la arquitectura MVC y aplica buenas prácticas de seguridad web asociadas a OWASP.
+
+---
+
+## Fase 5.1 - Limpieza final de salidas JSP directas
+
+### Objetivo
+
+Completar la limpieza de seguridad en la capa de presentación eliminando las salidas JSP directas restantes en vistas generales y fragmentos reutilizables.
+
+### Problema identificado
+
+Después de la Fase 5, los módulos principales ya estaban protegidos. Sin embargo, todavía existían salidas JSP directas en archivos generales del sistema, como login, dashboard, acceso denegado, encabezado, sesión y menús.
+
+Estas expresiones podían afectar la limpieza técnica del proyecto y no eran recomendables para una plantilla profesional reutilizable.
+
+### Cambios realizados
+
+1. Se corrigió `auth/login.jsp`.
+2. Se corrigió `error/acceso-denegado.jsp`.
+3. Se corrigió `home/inicio.jsp`.
+4. Se corrigió `layout/head.jspf`.
+5. Se corrigió `layout/usuario-sesion.jspf`.
+6. Se corrigió `layout/menu-right.jspf`.
+7. Se corrigió `layout/menu-mobile.jspf`.
+8. Se reemplazaron expresiones JSP directas por JSTL y EL.
+9. Se validó que los roles siguieran funcionando correctamente.
+10. Se validó que el menú activo siguiera marcándose correctamente.
+
+### Archivos protegidos
+
+- `auth/login.jsp`
+- `error/acceso-denegado.jsp`
+- `home/inicio.jsp`
+- `layout/head.jspf`
+- `layout/menu-mobile.jspf`
+- `layout/menu-right.jspf`
+- `layout/usuario-sesion.jspf`
+
+### Auditoría realizada
+
+Se ejecutó el comando:
+
+```cmd
+findstr /S /N /C:"<%=" src\main\webapp\WEB-INF\views\*.jsp src\main\webapp\WEB-INF\views\*.jspf
+```
+
+Resultado:
+
+```text
+Sin resultados.
+```
+
+### Pruebas realizadas
+
+- Inicio de sesión como ADMIN.
+- Inicio de sesión como RECEPCIONISTA.
+- Inicio de sesión como DOCTOR.
+- Acceso a módulos permitidos por rol.
+- Bloqueo de rutas no permitidas.
+- Visualización correcta del menú lateral.
+- Visualización correcta del menú móvil.
+- Visualización correcta del usuario y rol en sesión.
+- Validación de página de acceso denegado.
+- Ejecución del sistema en Apache Tomcat.
+
+### Resultado
+
+La Fase 5.1 fue completada correctamente. El sistema ya no presenta salidas JSP directas de expresión en las vistas revisadas y mantiene funcional el acceso por roles.
+
+Esta mejora deja la capa de presentación más limpia, segura y preparada para ser reutilizada como base de proyectos futuros.
+
+---
+
+## Estado general de la versión V2.1
+
+La versión V2.1 queda consolidada con las siguientes mejoras:
+
+- Eliminación lógica.
+- Hash de contraseñas con BCrypt.
+- Protección de operaciones críticas mediante POST.
+- Control de acceso por roles.
+- Página personalizada de acceso denegado.
+- Identidad de sesión visible.
+- Menús dinámicos según rol.
+- Indicador visual de módulo activo.
+- Seguridad en vistas JSP mediante JSTL.
+- Prevención de XSS mediante `c:out` y `fn:escapeXml`.
+- Eliminación de salidas JSP directas restantes.
+- Scripts SQL actualizados.
+- Migraciones creadas.
+- Documentación técnica actualizada.
+- Pruebas funcionales satisfactorias.
+
+---
+
+## Próxima fase recomendada
+
+La siguiente fase recomendada es:
+
+```text
+Fase 6 - Gestión de usuarios y administración de accesos
+```
+
+Objetivo:
+
+Crear un módulo visual para que el rol ADMIN pueda gestionar usuarios del sistema, asignar roles, activar o desactivar cuentas y administrar accesos de manera segura.

@@ -6,7 +6,7 @@ El Sistema de Citas Médicas NovaSalud es una aplicación web desarrollada en Ja
 
 El sistema permite administrar el flujo principal de atención médica, desde el registro de pacientes y médicos hasta la programación, atención y anulación de citas. Además, cuenta con un dashboard inicial que muestra un resumen operativo de las citas del día y la actividad semanal.
 
-La versión V2.1 incorpora mejoras de integridad de datos, seguridad de autenticación y protección de operaciones críticas.
+La versión V2.1 incorpora mejoras de integridad de datos, seguridad de autenticación, protección de operaciones críticas, control de acceso por roles y seguridad en vistas JSP.
 
 ---
 
@@ -15,6 +15,7 @@ La versión V2.1 incorpora mejoras de integridad de datos, seguridad de autentic
 - Java
 - Jakarta EE 10
 - JSP
+- JSTL
 - Servlets
 - JDBC
 - MySQL
@@ -23,7 +24,7 @@ La versión V2.1 incorpora mejoras de integridad de datos, seguridad de autentic
 - Maven
 - HTML
 - CSS
-- Bootstrap / estilos personalizados
+- Bootstrap
 - Apache NetBeans
 
 ---
@@ -70,6 +71,7 @@ El sistema incluye los siguientes módulos:
 - Agenda médica
 - Login y cierre de sesión
 - Control de acceso por roles
+- Página personalizada de acceso denegado
 
 ---
 
@@ -177,6 +179,8 @@ URL JDBC usada por el sistema:
 jdbc:mysql://localhost:3306/bd_citasmedicas?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 ```
 
+Nota: estas credenciales corresponden al entorno local académico. Para una versión productiva se recomienda mover credenciales sensibles a variables de entorno o archivos de configuración no versionados.
+
 ---
 
 ## 9. Instalación y ejecución
@@ -188,7 +192,7 @@ jdbc:mysql://localhost:3306/bd_citasmedicas?useSSL=false&allowPublicKeyRetrieval
 - Apache Tomcat configurado en NetBeans
 - MySQL Server
 - MySQL Workbench
-- Maven
+- Maven o soporte Maven desde NetBeans
 
 ### 9.2. Pasos de instalación
 
@@ -264,6 +268,16 @@ Tablas actualizadas:
 
 La tabla `cita` ya contaba con una lógica similar.
 
+Beneficios:
+
+- Conserva historial.
+- Evita pérdida definitiva de información.
+- Reduce conflictos con claves foráneas.
+- Mejora la trazabilidad.
+- Facilita auditoría futura.
+
+---
+
 ### 10.2. Seguridad de autenticación con BCrypt
 
 En la Fase 2 de la versión V2.1 se mejoró la seguridad del inicio de sesión mediante el uso de BCrypt para el almacenamiento de contraseñas.
@@ -294,6 +308,8 @@ Migración creada:
 ```text
 database/migrations/migracion_v2_1_hash_passwords.sql
 ```
+
+---
 
 ### 10.3. Protección de operaciones críticas mediante POST
 
@@ -327,6 +343,8 @@ Acciones protegidas:
 
 También se incorporó una validación para impedir que estas operaciones se ejecuten manipulando directamente la URL del navegador.
 
+---
+
 ### 10.4. Control de roles, acceso denegado e identidad de sesión
 
 En la Fase 4 de la versión V2.1 se reforzó el control de acceso por roles del sistema.
@@ -339,7 +357,7 @@ RECEPCIONISTA
 DOCTOR
 ```
 
-Se aplicó una matriz de permisos para limitar el acceso a los módulos según el rol del usuario autenticado.
+Matriz de acceso aplicada:
 
 | Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
 |---|---:|---:|---:|
@@ -361,9 +379,9 @@ Usuario autenticado
 Rol activo
 ```
 
-Esto mejora la seguridad, la trazabilidad y la experiencia de uso del sistema.
+---
 
-## 10.5 Seguridad en vistas JSP y prevención XSS
+### 10.5. Seguridad en vistas JSP y prevención XSS
 
 En la Fase 5 se reforzó la seguridad de las vistas JSP usando JSTL.
 
@@ -404,7 +422,35 @@ Esta mejora se aplicó en listados y formularios de los siguientes módulos:
 
 Además, el módulo Citas ahora muestra mensajes personalizados para operaciones como registrar, actualizar, atender y anular citas.
 
-Con esta mejora, la capa de presentación del sistema queda más protegida frente a riesgos de Cross-Site Scripting, XSS, manteniendo el funcionamiento de búsqueda, registro, edición y operaciones críticas mediante POST.
+---
+
+### 10.6. Limpieza final de salidas JSP directas
+
+En la Fase 5.1 se eliminaron las salidas JSP directas restantes en vistas generales y fragmentos de layout.
+
+Archivos actualizados:
+
+- `auth/login.jsp`
+- `error/acceso-denegado.jsp`
+- `home/inicio.jsp`
+- `layout/head.jspf`
+- `layout/menu-mobile.jspf`
+- `layout/menu-right.jspf`
+- `layout/usuario-sesion.jspf`
+
+Se validó con el siguiente comando:
+
+```cmd
+findstr /S /N /C:"<%=" src\main\webapp\WEB-INF\views\*.jsp src\main\webapp\WEB-INF\views\*.jspf
+```
+
+Resultado esperado:
+
+```text
+Sin resultados.
+```
+
+Con esta mejora, la capa de presentación del sistema queda más protegida frente a riesgos de Cross-Site Scripting, XSS, manteniendo el funcionamiento de búsqueda, registro, edición, menús por rol y operaciones críticas mediante POST.
 
 ---
 
@@ -444,15 +490,33 @@ Se refactorizaron los controladores para separar operaciones GET y POST:
 - `HorarioController.java`
 - `CitaController.java`
 
+También se reforzaron:
+
+- `AuthController.java`
+- `AccesoDenegadoController.java`
+
 ### 12.3. Vistas actualizadas
 
-Se actualizaron los JSP de listado para reemplazar enlaces críticos por formularios POST:
+Se actualizaron listados, formularios, vistas generales y fragmentos de layout:
 
 - `paciente/list.jsp`
-- `especialidad/list.jsp`
+- `paciente/form.jsp`
 - `medico/list.jsp`
+- `medico/form.jsp`
+- `especialidad/list.jsp`
+- `especialidad/form.jsp`
 - `horario/list.jsp`
+- `horario/form.jsp`
 - `cita/list.jsp`
+- `cita/form.jsp`
+- `agenda/list.jsp`
+- `auth/login.jsp`
+- `error/acceso-denegado.jsp`
+- `home/inicio.jsp`
+- `layout/head.jspf`
+- `layout/menu-mobile.jspf`
+- `layout/menu-right.jspf`
+- `layout/usuario-sesion.jspf`
 
 ---
 
@@ -464,7 +528,9 @@ Se realizaron las siguientes pruebas:
 - Inicio de sesión con usuario recepcionista.
 - Inicio de sesión con usuario doctor.
 - Prueba con contraseña incorrecta.
-- Acceso a todos los módulos principales.
+- Acceso a módulos permitidos según rol.
+- Bloqueo de rutas no autorizadas.
+- Visualización de página de acceso denegado.
 - Registro de paciente de prueba.
 - Eliminación lógica de paciente.
 - Verificación en MySQL de paciente con estado `INACTIVO`.
@@ -474,14 +540,21 @@ Se realizaron las siguientes pruebas:
 - Registro y eliminación lógica de médico.
 - Registro y eliminación lógica de horario.
 - Registro de cita médica.
+- Edición de cita médica.
 - Marcado de cita como `ATENDIDA`.
 - Anulación de cita.
 - Intento manual de eliminación por URL GET.
-- Verificación de mensaje `Operacion no permitida por este metodo`.
+- Verificación de mensaje `Operacion no permitida`.
+- Prueba controlada con texto tipo script para validar prevención XSS.
+- Verificación de ausencia de salidas JSP directas.
 - Ejecución de Clean and Build en Apache NetBeans.
 - Ejecución del sistema en Apache Tomcat.
 
-Resultado: el sistema funciona correctamente luego de las mejoras V2.1.
+Resultado:
+
+```text
+El sistema funciona correctamente luego de las mejoras aplicadas en V2.1.
+```
 
 ---
 
@@ -491,22 +564,25 @@ En la versión V2.1, las contraseñas del sistema fueron migradas a hashes BCryp
 
 Además, las operaciones críticas del sistema se ejecutan mediante POST y no mediante GET.
 
+El sistema aplica control de acceso por roles mediante `AuthFilter.java`, bloqueando rutas no autorizadas aunque el usuario intente acceder manualmente por URL.
+
+También se reforzó la capa de presentación mediante JSTL, `c:out`, `fn:escapeXml` y eliminación de salidas JSP directas.
+
 Como mejoras futuras se recomienda implementar:
 
 - Protección CSRF.
-- Validación estricta por roles.
-- Mejor control de sesión.
-- Sanitización de salidas en JSP para prevenir XSS.
-- Manejo centralizado de errores.
 - Variables de entorno para credenciales sensibles.
+- Relación directa entre usuario DOCTOR y registro de médico.
+- Manejo centralizado de errores.
+- Auditoría de acciones críticas.
 - Recuperación o restablecimiento seguro de contraseñas.
-- El sistema aplica control de acceso por roles mediante `AuthFilter.java`, bloqueando rutas no autorizadas aunque el usuario intente acceder manualmente por URL.
+- Módulo visual de gestión de usuarios para ADMIN.
 
 ---
 
 ## 15. Estado actual
 
-La versión V2.1 se encuentra funcional, con mejoras aplicadas en integridad de datos, autenticación y protección de operaciones críticas.
+La versión V2.1 se encuentra funcional, con mejoras aplicadas en integridad de datos, autenticación, control de acceso, protección de operaciones críticas y seguridad en vistas JSP.
 
 Estado actual:
 
@@ -515,8 +591,13 @@ Estado actual:
 - Eliminación lógica implementada.
 - Hash de contraseñas implementado con BCrypt.
 - Acciones críticas protegidas mediante POST.
+- Control de acceso por roles implementado.
+- Menús por rol implementados.
+- Página de acceso denegado implementada.
+- Vistas JSP protegidas con JSTL.
+- Salidas JSP directas eliminadas.
 - Scripts SQL actualizados.
 - Migraciones creadas.
 - Documentación técnica principal actualizada.
 
-El sistema está listo para continuar con mejoras de control de roles, seguridad en vistas JSP, mensajes funcionales y preparación de presentación final.
+El sistema está listo para continuar con la Fase 6: creación del módulo visual de gestión de usuarios para el rol ADMIN.

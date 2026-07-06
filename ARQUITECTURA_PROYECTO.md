@@ -6,7 +6,7 @@ El Sistema de Citas Médicas NovaSalud es una aplicación web desarrollada en Ja
 
 El sistema trabaja con una arquitectura por capas basada en el patrón MVC, complementada con DAO, Service Layer, filtros de seguridad, utilidades de autenticación y conexión JDBC hacia una base de datos MySQL.
 
-La versión V2.1 incorpora mejoras de integridad de datos, autenticación segura y protección de operaciones críticas.
+La versión V2.1 incorpora mejoras de integridad de datos, autenticación segura, protección de operaciones críticas, control de acceso por roles y seguridad en vistas JSP.
 
 ---
 
@@ -21,6 +21,7 @@ El objetivo de la arquitectura es separar responsabilidades dentro del proyecto 
 - Escalabilidad futura.
 - Mejor control de seguridad y sesión.
 - Mayor facilidad para probar y corregir errores.
+- Preparación del sistema para futuras mejoras funcionales.
 
 ---
 
@@ -50,7 +51,7 @@ Cada capa cumple una función específica dentro del sistema.
 
 ### 4.1. Capa de presentación
 
-La capa de presentación está compuesta por archivos JSP, HTML, CSS y JavaScript.
+La capa de presentación está compuesta por archivos JSP, HTML, CSS, Bootstrap y JavaScript.
 
 Su responsabilidad es mostrar la información al usuario y enviar solicitudes al backend mediante formularios, botones y enlaces del sistema.
 
@@ -74,7 +75,9 @@ Principales vistas del sistema:
 - Listado de horarios
 - Formulario de horarios
 - Listado de citas
+- Formulario de citas
 - Agenda médica
+- Acceso denegado
 
 Las vistas internas se ubican bajo `WEB-INF/views`, lo cual evita que puedan ser accedidas directamente desde el navegador sin pasar por los controladores.
 
@@ -99,17 +102,19 @@ Responsabilidades principales:
 - Redirigir o reenviar a vistas JSP.
 - Controlar el flujo de navegación del sistema.
 - Separar operaciones GET y POST.
+- Aplicar redirecciones según rol de usuario.
 
-Ejemplos de controladores:
+Controladores principales:
 
-- `LoginController`
-- `PacienteController`
-- `MedicoController`
-- `EspecialidadController`
-- `HorarioController`
-- `CitaController`
-- `AgendaMedicaController`
-- `DashboardController`
+- `AuthController.java`
+- `AccesoDenegadoController.java`
+- `HomeController.java`
+- `PacienteController.java`
+- `MedicoController.java`
+- `EspecialidadController.java`
+- `HorarioController.java`
+- `CitaController.java`
+- `AgendaMedicoController.java`
 
 ---
 
@@ -119,7 +124,7 @@ En la versión V2.1 se reforzó la arquitectura de los controladores separando l
 
 ```text
 GET  = listar, buscar, abrir formularios y editar visualmente.
-POST = guardar, actualizar, eliminar y cambiar estados.
+POST = guardar, actualizar, eliminar, atender, anular y cambiar estados.
 ```
 
 Esta separación evita que acciones críticas se ejecuten desde URLs manipulables y mejora la seguridad del sistema.
@@ -167,6 +172,7 @@ Responsabilidades principales:
 - Evitar reglas inválidas del negocio.
 - Coordinar operaciones entre Controller y DAO.
 - Centralizar lógica que no debe estar en la vista ni directamente en el DAO.
+- Retornar respuestas controladas hacia los controladores.
 
 Ejemplos de reglas aplicadas:
 
@@ -200,13 +206,13 @@ Responsabilidades principales:
 
 DAO principales:
 
-- `UsuarioDAO`
-- `PacienteDAO`
-- `MedicoDAO`
-- `EspecialidadDAO`
-- `HorarioDAO`
-- `CitaDAO`
-- `DashboardDAO`
+- `UsuarioDAO.java`
+- `PacienteDAO.java`
+- `MedicoDAO.java`
+- `EspecialidadDAO.java`
+- `HorarioDAO.java`
+- `CitaDAO.java`
+- `DashboardDAO.java`
 
 En la versión V2.1 se actualizaron los DAO de pacientes, médicos, especialidades y horarios para trabajar con eliminación lógica mediante el campo `estado_registro`.
 
@@ -224,12 +230,12 @@ src/main/java/com/mycompany/miprimeraweb/model
 
 Modelos principales:
 
-- `Usuario`
-- `Paciente`
-- `Medico`
-- `Especialidad`
-- `Horario`
-- `Cita`
+- `Usuario.java`
+- `Paciente.java`
+- `Medico.java`
+- `Especialidad.java`
+- `Horario.java`
+- `Cita.java`
 
 Estas clases permiten transportar datos entre Controller, Service, DAO y vistas.
 
@@ -237,7 +243,7 @@ Estas clases permiten transportar datos entre Controller, Service, DAO y vistas.
 
 ### 4.7. Capa Filter
 
-La capa Filter controla la seguridad básica de acceso al sistema.
+La capa Filter controla la seguridad de acceso al sistema.
 
 Ubicación:
 
@@ -251,6 +257,13 @@ Responsabilidades principales:
 - Evitar acceso directo a rutas protegidas.
 - Validar acceso según rol.
 - Redirigir al login cuando no existe sesión activa.
+- Redirigir a acceso denegado cuando el rol no tiene autorización.
+
+Archivo principal:
+
+```text
+AuthFilter.java
+```
 
 Roles identificados en el sistema:
 
@@ -330,7 +343,7 @@ database
 
 ## 6. Procedimientos almacenados
 
-El sistema utiliza procedimientos almacenados para operaciones principales sobre pacientes, médicos y citas.
+El sistema utiliza procedimientos almacenados para operaciones principales sobre pacientes, médicos, especialidades, horarios y citas.
 
 Procedimientos relevantes:
 
@@ -340,11 +353,11 @@ Procedimientos relevantes:
 - `sp_registrar_medico`
 - `sp_actualizar_medico`
 - `sp_eliminar_medico`
+- `sp_eliminar_especialidad`
+- `sp_eliminar_horario`
 - `sp_registrar_cita`
 - `sp_actualizar_cita`
 - `sp_eliminar_cita`
-- `sp_eliminar_especialidad`
-- `sp_eliminar_horario`
 - `sp_listar_medicos`
 - `sp_listar_citas`
 
@@ -410,7 +423,7 @@ Controller envía resultado a la vista JSP
 Ejemplo aplicado al registro de paciente:
 
 ```text
-Formulario paciente.jsp
+Formulario de paciente
         ↓
 PacienteController
         ↓
@@ -427,7 +440,87 @@ Tabla paciente
 
 ## 9. Seguridad actual
 
-## Seguridad en vistas JSP
+La versión V2.1 cuenta con las siguientes medidas de seguridad:
+
+- Login de usuario.
+- Manejo de sesión.
+- Filtro de autenticación.
+- Control de acceso por roles.
+- Redirección por rol después del login.
+- Página personalizada de acceso denegado.
+- Usuario de base de datos limitado a `localhost`.
+- Permisos de base de datos restringidos a `bd_citasmedicas`.
+- Almacenamiento de contraseñas mediante hashes BCrypt.
+- Operaciones críticas ejecutadas mediante POST y no mediante GET.
+- Salida segura de datos en vistas JSP mediante JSTL.
+- Eliminación de salidas JSP directas en vistas principales y fragmentos de layout.
+
+Roles disponibles:
+
+```text
+ADMIN
+RECEPCIONISTA
+DOCTOR
+```
+
+Credenciales de prueba del sistema:
+
+```text
+administrador / 123456 / ADMIN
+recepcionista / 123456 / RECEPCIONISTA
+doctor / 123456 / DOCTOR
+```
+
+Estas credenciales son de prueba académica. En la base de datos no se almacenan como texto plano, sino como hashes BCrypt.
+
+---
+
+## 10. Control de acceso por roles en V2.1
+
+En la Fase 4 de la versión V2.1 se reforzó el control de acceso por roles mediante `AuthFilter.java`.
+
+El sistema aplica un esquema RBAC, Role-Based Access Control, donde cada usuario autenticado tiene un rol y dicho rol determina a qué módulos puede acceder.
+
+Matriz de acceso aplicada:
+
+| Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
+|---|---:|---:|---:|
+| Inicio / Dashboard | Sí | No | No |
+| Pacientes | Sí | Sí | No |
+| Médicos | Sí | No | No |
+| Especialidades | Sí | No | No |
+| Horarios | Sí | No | No |
+| Citas | Sí | Sí | No |
+| Agenda Médica | Sí | Sí | Sí |
+| Cerrar sesión | Sí | Sí | Sí |
+
+El filtro no solo protege el menú visible, sino que también bloquea el acceso manual por URL. Esto evita que un usuario ingrese directamente a rutas no autorizadas escribiéndolas en el navegador.
+
+Ejemplos de rutas protegidas:
+
+```text
+/medicos
+/especialidades
+/horarios
+```
+
+Si un usuario sin permiso intenta acceder a una ruta restringida, el sistema lo redirige a una página personalizada de acceso denegado.
+
+Archivos relacionados:
+
+- `AuthFilter.java`
+- `AuthController.java`
+- `AccesoDenegadoController.java`
+- `error/acceso-denegado.jsp`
+- `layout/menu-right.jspf`
+- `layout/menu-mobile.jspf`
+- `layout/usuario-sesion.jspf`
+
+También se agregó un indicador visual del módulo activo en el menú y una identificación de sesión en la barra superior, mostrando el usuario autenticado y el rol activo.
+
+---
+
+## 11. Seguridad en vistas JSP y prevención XSS
 
 En la versión V2.1 se reforzó la capa de presentación para reducir el riesgo de Cross-Site Scripting, XSS.
 
@@ -451,9 +544,9 @@ ${fn:escapeXml(valor)}
 
 Esto permite que los datos ingresados por los usuarios se muestren como texto seguro, evitando que fragmentos HTML o JavaScript se ejecuten en el navegador.
 
-### Archivos principales protegidos
+### Vistas protegidas en Fase 5
 
-Se protegieron los listados de los siguientes módulos:
+Se protegieron los listados y formularios de:
 
 - Pacientes
 - Médicos
@@ -462,125 +555,49 @@ Se protegieron los listados de los siguientes módulos:
 - Citas
 - Agenda Médica
 
-También se protegieron los formularios principales de:
+### Limpieza final en Fase 5.1
 
-- Pacientes
-- Médicos
-- Especialidades
-- Horarios
-- Citas
+En la Fase 5.1 se eliminaron las salidas JSP directas restantes en:
 
-### Resultado arquitectónico
-
-Esta mejora fortalece la capa de presentación dentro de la arquitectura MVC del sistema, porque evita que las vistas JSP impriman datos dinámicos sin escape.
-
-También complementa las mejoras anteriores de seguridad:
-
-- Hash de contraseñas con BCrypt.
-- Operaciones críticas mediante POST.
-- Control de acceso por roles.
-- Página personalizada de acceso denegado.
-- Identidad de sesión visible en la interfaz.
-
-Con esta mejora, el sistema reduce el riesgo de XSS reflejado o almacenado y presenta los datos de forma más segura para el usuario final.
-
-El sistema cuenta con seguridad básica mediante:
-
-- Login.
-- Manejo de sesión.
-- Filtros de acceso.
-- Roles de usuario.
-- Validación de rutas protegidas.
-- Usuario de base de datos limitado a `localhost`.
-- Permisos de base de datos restringidos a `bd_citasmedicas`.
-- Almacenamiento de contraseñas mediante hashes BCrypt.
-- Operaciones críticas ejecutadas mediante POST y no mediante GET.
-
-Roles disponibles:
-
-```text
-ADMIN
-RECEPCIONISTA
-DOCTOR
-```
-
-Credenciales de prueba del sistema:
-
-```text
-administrador / 123456 / ADMIN
-recepcionista / 123456 / RECEPCIONISTA
-doctor / 123456 / DOCTOR
-```
-
-Estas contraseñas son credenciales de prueba. En la base de datos no se almacenan como texto plano, sino como hashes BCrypt.
-
-## Control de acceso por roles en V2.1
-
-En la Fase 4 de la versión V2.1 se reforzó el control de acceso por roles mediante `AuthFilter.java`.
-
-El sistema aplica un esquema RBAC, Role-Based Access Control, donde cada usuario autenticado tiene un rol y dicho rol determina a qué módulos puede acceder.
-
-Roles definidos:
-
-```text
-ADMIN
-RECEPCIONISTA
-DOCTOR
-```
-
-Matriz de acceso aplicada:
-
-| Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
-|---|---:|---:|---:|
-| Inicio / Dashboard | Sí | No | No |
-| Pacientes | Sí | Sí | No |
-| Médicos | Sí | No | No |
-| Especialidades | Sí | No | No |
-| Horarios | Sí | No | No |
-| Citas | Sí | Sí | No |
-| Agenda Médica | Sí | Sí | Sí |
-
-El filtro no solo protege el menú visible, sino que también bloquea el acceso manual por URL. Esto evita que un usuario ingrese directamente a rutas no autorizadas escribiéndolas en el navegador.
-
-Ejemplo:
-
-```text
-/medicos
-/especialidades
-/horarios
-```
-
-Si un usuario sin permiso intenta acceder a una ruta restringida, el sistema lo redirige a una página personalizada de acceso denegado.
-
-Archivos relacionados:
-
-- `AuthFilter.java`
-- `AuthController.java`
-- `AccesoDenegadoController.java`
+- `auth/login.jsp`
 - `error/acceso-denegado.jsp`
-- `layout/menu-right.jspf`
+- `home/inicio.jsp`
+- `layout/head.jspf`
 - `layout/menu-mobile.jspf`
+- `layout/menu-right.jspf`
 - `layout/usuario-sesion.jspf`
 
-También se agregó un indicador visual del módulo activo en el menú y una identificación de sesión en la barra superior, mostrando el usuario autenticado y el rol activo.
+También se validó el siguiente comando de auditoría:
+
+```cmd
+findstr /S /N /C:"<%=" src\main\webapp\WEB-INF\views\*.jsp src\main\webapp\WEB-INF\views\*.jspf
+```
+
+Resultado esperado:
+
+```text
+Sin resultados.
+```
+
+Esto confirma que ya no quedan salidas directas JSP de expresión en las vistas revisadas.
+
 ---
 
-## 10. Mejoras pendientes de seguridad
+## 12. Mejoras pendientes de seguridad
 
 Como parte de futuras versiones, se recomienda implementar:
 
 - Protección CSRF.
-- Sanitización de salidas en JSP para prevenir XSS.
-- Mayor control de permisos por rol.
-- Relación directa entre usuario DOCTOR y médico.
-- Manejo centralizado de errores.
-- Retiro de credenciales reales del código fuente.
 - Variables de entorno para credenciales sensibles.
+- Relación directa entre usuario DOCTOR y registro de médico.
+- Manejo centralizado de errores.
 - Restablecimiento seguro de contraseñas.
+- Auditoría de acciones críticas.
+- Módulo visual de gestión de usuarios para el rol ADMIN.
 
 ---
 
-## 11. Ventajas de la arquitectura actual
+## 13. Ventajas de la arquitectura actual
 
 La arquitectura actual permite:
 
@@ -591,17 +608,21 @@ La arquitectura actual permite:
 - Posibilidad de escalar funcionalidades.
 - Mayor facilidad para aplicar seguridad progresiva.
 - Mejor trazabilidad entre vista, lógica y base de datos.
+- Base técnica reutilizable para futuros sistemas administrativos.
 
 ---
 
-## 12. Estado actual de la versión V2.1
+## 14. Estado actual de la versión V2.1
 
 La versión V2.1 se encuentra funcional y validada.
 
 Pruebas realizadas:
 
-- Inicio de sesión.
-- Acceso a módulos principales.
+- Inicio de sesión con ADMIN.
+- Inicio de sesión con RECEPCIONISTA.
+- Inicio de sesión con DOCTOR.
+- Acceso a módulos permitidos según rol.
+- Bloqueo de rutas no autorizadas.
 - Registro de pacientes.
 - Eliminación lógica de pacientes.
 - Registro de especialidades.
@@ -609,23 +630,27 @@ Pruebas realizadas:
 - Registro y eliminación lógica de médicos.
 - Registro y eliminación lógica de horarios.
 - Registro de citas.
+- Edición de citas.
 - Marcado de citas como ATENDIDA.
 - Anulación de citas.
 - Validación en MySQL de registros con estado `INACTIVO`.
+- Pruebas controladas con texto tipo script para verificar prevención XSS.
+- Verificación de ausencia de salidas JSP directas.
 - Compilación mediante Clean and Build.
 - Ejecución del proyecto en Apache Tomcat.
 
 Resultado:
 
 ```text
-Sistema funcional con mejoras de integridad de datos, autenticación y protección de operaciones críticas.
+Sistema funcional con mejoras de integridad de datos, autenticación, control de acceso, protección de operaciones críticas y seguridad en vistas JSP.
 ```
 
 ---
 
-## 13. Conclusión técnica
+## 15. Conclusión técnica
 
 El Sistema de Citas Médicas NovaSalud V2.1 mantiene una arquitectura MVC por capas, con DAO, Service Layer, filtros de seguridad, utilidades de autenticación y conexión JDBC a MySQL.
 
-Las mejoras aplicadas fortalecen la integridad de datos, la autenticación y la seguridad de operaciones críticas. El sistema queda preparado para continuar con mejoras de control de roles, protección CSRF, sanitización de vistas JSP, auditoría y refinamiento funcional.
+Las mejoras aplicadas fortalecen la integridad de datos, la autenticación, el control de acceso, la seguridad de operaciones críticas y la protección de la capa de presentación frente a XSS.
 
+El sistema queda preparado para continuar con la siguiente mejora: creación del módulo visual de gestión de usuarios para el rol ADMIN.

@@ -2,7 +2,7 @@
 
 ## 1. Objetivo general
 
-Mejorar y consolidar el Sistema de Citas Médicas NovaSalud, asegurando su funcionamiento, integridad de datos, documentación técnica y preparación para futuras mejoras de seguridad.
+Mejorar y consolidar el Sistema de Citas Médicas NovaSalud, asegurando su funcionamiento, integridad de datos, seguridad, documentación técnica y preparación para futuras mejoras funcionales.
 
 El sistema permite gestionar pacientes, médicos, especialidades, horarios y citas médicas mediante una aplicación web desarrollada en Java, JSP, Servlets, JDBC y MySQL.
 
@@ -198,8 +198,6 @@ Completado.
 
 ## 6. Fase 4 - Control de roles y acceso
 
-## 6. Fase 4 - Control de roles y acceso
-
 ### Objetivo
 
 Reforzar el control de acceso según el rol del usuario autenticado, evitando que usuarios no autorizados ingresen a módulos restringidos mediante manipulación directa de URL.
@@ -243,20 +241,142 @@ Completado.
 
 ---
 
-## 7. Fase 5 - Seguridad en vistas JSP
+## 7. Fase 5 - Seguridad en vistas JSP y prevención XSS
 
 ### Objetivo
 
-Reducir riesgos de XSS y mejorar la salida segura de datos en las vistas.
+Reducir riesgos de Cross-Site Scripting, XSS, y mejorar la salida segura de datos dinámicos en las vistas JSP.
+
+### Actividades realizadas
+
+1. Se agregó soporte JSTL en `pom.xml`.
+2. Se incorporaron las taglibs `c` y `fn` en las vistas refactorizadas.
+3. Se reemplazaron salidas directas por `<c:out>`.
+4. Se usó `fn:escapeXml()` en campos `input value`.
+5. Se protegieron mensajes de error con `<c:out>`.
+6. Se refactorizaron los listados principales.
+7. Se refactorizaron los formularios principales.
+8. Se mantuvieron las operaciones críticas mediante POST.
+9. Se validó que los menús, roles y sesiones siguieran funcionando.
+10. Se mejoraron los mensajes funcionales del módulo Citas.
+
+### Vistas trabajadas
+
+- `paciente/list.jsp`
+- `medico/list.jsp`
+- `especialidad/list.jsp`
+- `horario/list.jsp`
+- `cita/list.jsp`
+- `agenda/list.jsp`
+- `paciente/form.jsp`
+- `medico/form.jsp`
+- `especialidad/form.jsp`
+- `horario/form.jsp`
+- `cita/form.jsp`
+
+### Pruebas realizadas
+
+Se probaron entradas controladas con texto tipo:
+
+```html
+<script>alert("XSS")</script>
+```
+
+Resultado de las pruebas:
+
+- No se ejecutó JavaScript.
+- No apareció alerta en el navegador.
+- La página no se rompió.
+- Crear, editar, buscar, atender, anular y eliminar siguieron funcionando correctamente.
+
+### Estado
+
+Completado.
+
+---
+
+## 8. Fase 5.1 - Limpieza final de salidas JSP directas
+
+### Objetivo
+
+Eliminar las salidas JSP directas restantes en vistas y fragmentos de layout para dejar el sistema con una capa de presentación más segura, limpia y reutilizable.
+
+### Actividades realizadas
+
+1. Se revisaron todas las vistas JSP y fragmentos JSPF buscando expresiones directas.
+2. Se reemplazaron salidas JSP de expresión por JSTL y EL.
+3. Se corrigió el login para mostrar mensajes usando `<c:out>`.
+4. Se corrigió la página de acceso denegado.
+5. Se corrigió el dashboard.
+6. Se corrigió el encabezado general.
+7. Se corrigió el fragmento de usuario y rol en sesión.
+8. Se corrigió el menú lateral.
+9. Se corrigió el menú móvil.
+10. Se validó el acceso funcional por roles después de los cambios.
+
+### Archivos trabajados
+
+- `auth/login.jsp`
+- `error/acceso-denegado.jsp`
+- `home/inicio.jsp`
+- `layout/head.jspf`
+- `layout/menu-mobile.jspf`
+- `layout/menu-right.jspf`
+- `layout/usuario-sesion.jspf`
+
+### Auditoría realizada
+
+Se ejecutó el comando:
+
+```cmd
+findstr /S /N /C:"<%=" src\main\webapp\WEB-INF\views\*.jsp src\main\webapp\WEB-INF\views\*.jspf
+```
+
+Resultado:
+
+```text
+Sin resultados.
+```
+
+### Pruebas realizadas
+
+- Inicio de sesión como ADMIN.
+- Inicio de sesión como RECEPCIONISTA.
+- Inicio de sesión como DOCTOR.
+- Navegación por módulos permitidos según rol.
+- Validación de menú visible según rol.
+- Validación de indicador de módulo activo.
+- Validación de acceso denegado para rutas no autorizadas.
+- Ejecución del sistema en Apache Tomcat.
+
+### Estado
+
+Completado.
+
+---
+
+## 9. Fase 6 - Gestión de usuarios y administración de accesos
+
+### Objetivo
+
+Crear un módulo visual de gestión de usuarios para que el rol ADMIN pueda administrar cuentas del sistema de forma segura y ordenada.
 
 ### Actividades propuestas
 
-1. Revisar salidas directas con `<%= ... %>`.
-2. Reemplazar salidas sensibles por mecanismos de escape.
-3. Revisar mensajes de error y éxito.
-4. Evitar mostrar detalles técnicos al usuario final.
-5. Probar registros con caracteres especiales.
-6. Documentar mejora.
+1. Revisar la estructura actual de la tabla `usuario`.
+2. Evaluar si la tabla necesita campos adicionales como `estado_registro`, `fecha_creacion` o `fecha_actualizacion`.
+3. Ampliar `UsuarioDAO.java` para listar, registrar, actualizar y desactivar usuarios.
+4. Crear `UsuarioService.java` para reglas de negocio.
+5. Crear `UsuarioController.java`.
+6. Crear la vista `usuario/list.jsp`.
+7. Crear la vista `usuario/form.jsp`.
+8. Agregar opción “Usuarios” al menú solo para ADMIN.
+9. Proteger rutas de usuarios en `AuthFilter.java`.
+10. Implementar creación de usuario con contraseña hasheada mediante BCrypt.
+11. Implementar cambio de rol.
+12. Implementar activación o desactivación lógica.
+13. Evaluar opción de reseteo de contraseña.
+14. Probar acceso y operaciones solo con rol ADMIN.
 
 ### Estado
 
@@ -264,7 +384,7 @@ Pendiente.
 
 ---
 
-## 8. Fase 6 - Refinamiento funcional y presentación
+## 10. Fase 7 - Refinamiento funcional y preparación de entrega
 
 ### Objetivo
 
@@ -272,14 +392,14 @@ Preparar el sistema para una presentación académica clara, ordenada y defendib
 
 ### Actividades propuestas
 
-1. Mejorar mensajes funcionales del sistema.
-2. Evaluar mostrar edad del paciente en el formulario de citas.
-3. Revisar diseño visual de pantallas principales.
-4. Preparar capturas de evidencia.
-5. Crear guion de exposición.
-6. Preparar respuestas a posibles preguntas del docente.
-7. Crear versión comprimida final del proyecto.
-8. Validar instalación desde cero usando scripts SQL.
+1. Revisar diseño visual de pantallas principales.
+2. Preparar capturas de evidencia.
+3. Crear guion de exposición.
+4. Preparar respuestas a posibles preguntas del docente.
+5. Crear versión comprimida final del proyecto.
+6. Validar instalación desde cero usando scripts SQL.
+7. Revisar documentación final.
+8. Preparar evidencia técnica de commits y pruebas.
 
 ### Estado
 
@@ -287,33 +407,37 @@ Pendiente.
 
 ---
 
-## 9. Riesgos identificados
+## 11. Riesgos identificados
 
 | Riesgo | Impacto | Estado / Medida |
 |---|---|---|
 | Eliminación física de registros | Alto | Mitigado con eliminación lógica |
 | Contraseñas en texto plano | Alto | Mitigado con BCrypt |
 | Acciones críticas por GET | Alto | Mitigado con formularios POST |
-| Acceso por roles incompleto | Medio | Pendiente de reforzar |
-| Posible XSS en JSP | Medio | Pendiente de revisar |
+| Acceso por roles incompleto | Alto | Mitigado con `AuthFilter.java` y matriz RBAC |
+| Posible XSS en JSP | Medio | Mitigado con JSTL, `c:out` y `fn:escapeXml` |
+| Salidas JSP directas restantes | Medio | Mitigado en Fase 5.1 |
+| Falta de módulo visual de usuarios | Medio | Pendiente para Fase 6 |
 | Credenciales de BD en código | Medio | Pendiente de variables de entorno |
+| Falta de protección CSRF | Medio | Pendiente |
 | Scripts desactualizados | Bajo | Mitigado con carpeta `database` y migraciones |
 
 ---
 
-## 10. Prioridad de trabajo
+## 12. Prioridad de trabajo
 
 1. Fase 1 completada: integridad de datos y eliminación lógica.
 2. Fase 2 completada: hash de contraseñas con BCrypt.
 3. Fase 3 completada: protección de operaciones críticas mediante POST.
 4. Fase 4 completada: control de roles, acceso denegado e identidad de sesión.
 5. Fase 5 completada: seguridad en vistas JSP y prevención XSS.
-6. Próxima fase: revisión final, limpieza técnica y preparación de entrega.
-7. Preparar documentación y presentación final.
+6. Fase 5.1 completada: limpieza final de salidas JSP directas.
+7. Próxima fase: gestión de usuarios y administración de accesos.
+8. Luego: refinamiento funcional, documentación final y preparación de entrega.
 
 ---
 
-## 11. Estado actual del proyecto
+## 13. Estado actual del proyecto
 
 La versión V2.1 se encuentra funcional y validada.
 
@@ -324,11 +448,17 @@ Estado:
 - Eliminación lógica implementada.
 - Contraseñas almacenadas con hash BCrypt.
 - Operaciones críticas protegidas mediante POST.
+- Control de acceso por roles implementado.
+- Página de acceso denegado implementada.
+- Menús por rol implementados.
+- Indicador de módulo activo implementado.
+- Usuario y rol visibles en sesión.
 - DAO actualizados.
 - Controladores refactorizados.
-- JSP de listado actualizados.
+- JSP de listado y formularios principales protegidos.
+- Salidas JSP directas eliminadas de vistas revisadas.
 - Scripts SQL actualizados.
 - Migraciones V2.1 creadas.
 - Documentación técnica principal actualizada.
 
-El proyecto queda listo para iniciar la Fase 4 enfocada en control de roles y acceso.
+El proyecto queda listo para iniciar la Fase 6, enfocada en la creación del módulo de gestión de usuarios para el rol ADMIN.
