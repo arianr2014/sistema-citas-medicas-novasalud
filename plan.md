@@ -307,8 +307,8 @@ Pendiente.
 2. Fase 2 completada: hash de contraseñas con BCrypt.
 3. Fase 3 completada: protección de operaciones críticas mediante POST.
 4. Fase 4 completada: control de roles, acceso denegado e identidad de sesión.
-5. Próxima fase: seguridad en vistas JSP y prevención XSS.
-6. Mejorar mensajes funcionales.
+5. Fase 5 completada: seguridad en vistas JSP y prevención XSS.
+6. Próxima fase: revisión final, limpieza técnica y preparación de entrega.
 7. Preparar documentación y presentación final.
 
 ---

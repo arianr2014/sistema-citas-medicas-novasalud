@@ -13,6 +13,7 @@
     </properties>
     
     <dependencies>
+                
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
@@ -37,6 +38,21 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- JSTL para Jakarta EE.
+        Necesario para usar etiquetas como <c:out>, <c:choose>, <c:forEach> y funciones fn. -->
+           <dependency>
+               <groupId>jakarta.servlet.jsp.jstl</groupId>
+               <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+               <version>3.0.2</version>
+           </dependency>
+
+           <dependency>
+               <groupId>org.glassfish.web</groupId>
+               <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+               <version>3.0.1</version>
+           </dependency>
+        
     </dependencies>
     
     <build>

@@ -217,8 +217,13 @@ public class CitaController extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/cita/form.jsp").forward(request, response);
     }
 
-    /**
+        /**
      * Guarda o actualiza una cita.
+     *
+     * Mejora Fase 5:
+     * Se diferencia el mensaje de respuesta según la operación realizada:
+     * - created: cita nueva registrada.
+     * - updated: cita existente actualizada.
      */
     private void guardarCita(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -235,16 +240,28 @@ public class CitaController extends HttpServlet {
         int idEspecialidadSel = parseEntero(request.getParameter("idEspecialidadSel"));
         String dniBusqueda = texto(request.getParameter("dniBusqueda"));
 
+        /*
+         * Si la cita ya tiene ID, significa que estamos editando.
+         * Si el ID es 0, significa que estamos registrando una nueva cita.
+         */
+        boolean esEdicion = cita.getIdCita() > 0;
+
         try {
             HttpSession session = request.getSession(false);
             String usuario = obtenerUsuarioSesion(session);
 
             citaService.guardar(cita, usuario);
-            response.sendRedirect(request.getContextPath() + "/citas?msg=ok");
+
+            if (esEdicion) {
+                response.sendRedirect(request.getContextPath() + "/citas?msg=updated");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/citas?msg=created");
+            }
 
         } catch (IllegalArgumentException ex) {
             request.setAttribute("error", ex.getMessage());
             request.setAttribute("cita", cita);
+
             prepararFormulario(
                     request,
                     cita.getIdPaciente(),
@@ -255,11 +272,13 @@ public class CitaController extends HttpServlet {
                     cita.getHora(),
                     cita.getIdCita()
             );
+
             request.getRequestDispatcher("/WEB-INF/views/cita/form.jsp").forward(request, response);
 
         } catch (SQLException ex) {
             request.setAttribute("error", "No se pudo guardar la cita: " + ex.getMessage());
             request.setAttribute("cita", cita);
+
             prepararFormulario(
                     request,
                     cita.getIdPaciente(),
@@ -270,6 +289,7 @@ public class CitaController extends HttpServlet {
                     cita.getHora(),
                     cita.getIdCita()
             );
+
             request.getRequestDispatcher("/WEB-INF/views/cita/form.jsp").forward(request, response);
         }
     }

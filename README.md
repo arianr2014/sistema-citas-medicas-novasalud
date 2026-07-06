@@ -362,6 +362,50 @@ Rol activo
 ```
 
 Esto mejora la seguridad, la trazabilidad y la experiencia de uso del sistema.
+
+## 10.5 Seguridad en vistas JSP y prevención XSS
+
+En la Fase 5 se reforzó la seguridad de las vistas JSP usando JSTL.
+
+Se reemplazaron salidas directas con expresiones JSP como:
+
+```jsp
+<%= objeto.getCampo() %>
+```
+
+por etiquetas más seguras como:
+
+```jsp
+<c:out value="${dato}" />
+```
+
+También se protegieron valores mostrados dentro de formularios usando:
+
+```jsp
+${fn:escapeXml(valor)}
+```
+
+Esto ayuda a evitar que entradas maliciosas, como fragmentos HTML o JavaScript, se ejecuten en el navegador.
+
+Ejemplo de texto malicioso usado en pruebas controladas:
+
+```html
+<script>alert("XSS")</script>
+```
+
+Esta mejora se aplicó en listados y formularios de los siguientes módulos:
+
+- Pacientes
+- Médicos
+- Especialidades
+- Horarios
+- Citas
+- Agenda Médica
+
+Además, el módulo Citas ahora muestra mensajes personalizados para operaciones como registrar, actualizar, atender y anular citas.
+
+Con esta mejora, la capa de presentación del sistema queda más protegida frente a riesgos de Cross-Site Scripting, XSS, manteniendo el funcionamiento de búsqueda, registro, edición y operaciones críticas mediante POST.
+
 ---
 
 ## 11. Procedimientos almacenados corregidos

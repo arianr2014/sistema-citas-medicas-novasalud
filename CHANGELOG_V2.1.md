@@ -253,3 +253,77 @@ También se identificó que el usuario no tenía una referencia clara de qué se
 La Fase 4 fue completada correctamente. El sistema ahora aplica control de acceso por roles, bloquea rutas no autorizadas, muestra una página personalizada de acceso denegado y permite identificar claramente el usuario y rol activo dentro del sistema.
 
 Esta mejora responde a buenas prácticas de seguridad web relacionadas con control de acceso y prevención de fallas tipo Broken Access Control.
+
+---
+
+## Fase 5 - Seguridad en vistas JSP y prevención XSS
+
+### Objetivo
+
+Reforzar la seguridad de las vistas JSP del sistema para reducir el riesgo de Cross-Site Scripting, XSS, evitando mostrar datos dinámicos directamente en pantalla sin escape.
+
+### Problema identificado
+
+Varias vistas JSP mostraban datos usando expresiones directas como:
+
+```jsp
+<%= objeto.getCampo() %>
+```
+
+También algunos formularios devolvían valores dentro de atributos `value` sin escape explícito.
+
+Esto podía representar un riesgo si un usuario ingresaba texto malicioso como:
+
+```html
+<script>alert("XSS")</script>
+```
+
+### Cambios realizados
+
+1. Se agregó soporte JSTL en `pom.xml`.
+2. Se incorporaron las taglibs `c` y `fn` en las vistas refactorizadas.
+3. Se reemplazaron salidas directas por `<c:out>`.
+4. Se usó `fn:escapeXml()` en campos `input value`.
+5. Se protegieron mensajes de error con `<c:out>`.
+6. Se refactorizaron los listados principales.
+7. Se refactorizaron los formularios principales.
+8. Se mantuvieron las operaciones críticas mediante POST.
+9. Se validó que los menús, roles y sesiones siguieran funcionando.
+10. Se mejoraron los mensajes funcionales del módulo Citas.
+
+### Vistas protegidas
+
+- `paciente/list.jsp`
+- `medico/list.jsp`
+- `especialidad/list.jsp`
+- `horario/list.jsp`
+- `cita/list.jsp`
+- `agenda/list.jsp`
+- `paciente/form.jsp`
+- `medico/form.jsp`
+- `especialidad/form.jsp`
+- `horario/form.jsp`
+- `cita/form.jsp`
+
+### Pruebas realizadas
+
+Se probó texto malicioso controlado en buscadores, formularios y campos editables:
+
+```html
+<script>alert("XSS")</script>
+```
+
+### Resultado de las pruebas
+
+- No se ejecutó JavaScript.
+- No apareció alerta en el navegador.
+- La página no se rompió.
+- El texto se mostró como texto normal o no devolvió registros.
+- Crear, editar, buscar, atender, anular y eliminar siguieron funcionando correctamente.
+- El menú activo, usuario en sesión y rol activo siguieron mostrándose correctamente.
+
+### Resultado
+
+La Fase 5 fue completada correctamente. El sistema ahora muestra datos dinámicos de forma más segura en las vistas JSP y reduce el riesgo de XSS reflejado o almacenado.
+
+Esta mejora fortalece la capa de presentación del sistema dentro de la arquitectura MVC y aplica buenas prácticas de seguridad web asociadas a OWASP.

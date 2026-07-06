@@ -1,14 +1,12 @@
-<%@page import="com.mycompany.miprimeraweb.model.Cita"%>
-<%@page import="com.mycompany.miprimeraweb.model.Especialidad"%>
-<%@page import="com.mycompany.miprimeraweb.model.Medico"%>
-<%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="jakarta.tags.core"%>
+<%@taglib prefix="fn" uri="jakarta.tags.functions"%>
 <% request.setAttribute("pageTitle", "Citas"); %>
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
 <body class="bg-light">
-    
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
         <div class="container-fluid px-4">
 
@@ -39,88 +37,191 @@
 
     <main class="container-fluid py-4 px-4">
         <div class="row g-4">
+
             <div class="col-12 col-lg-3 order-1 order-lg-1">
                 <%@ include file="/WEB-INF/views/layout/menu-right.jspf" %>
             </div>
+
             <div class="col-12 col-lg-9 order-2 order-lg-2">
+
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="text-green fw-bold mb-0"><i class="bi bi-calendar-check"></i> Listado de Citas</h4>
-                    <a href="${pageContext.request.contextPath}/citas?accion=form" class="btn btn-success">
+                    <h4 class="text-green fw-bold mb-0">
+                        <i class="bi bi-calendar-check"></i> Listado de Citas
+                    </h4>
+
+                    <a href="${pageContext.request.contextPath}/citas?accion=form"
+                       class="btn btn-success">
                         <i class="bi bi-plus-lg"></i> Nuevo
                     </a>
                 </div>
 
+                <!--
+                    Fase 5:
+                    Se escapan los valores que regresan al formulario de filtros.
+                    Esto evita que texto malicioso quede reflejado en la vista.
+                -->
                 <div class="card mb-3 border-0 shadow-sm">
                     <div class="card-body">
-                        <form method="get" action="${pageContext.request.contextPath}/citas" class="row g-2 align-items-end">
+                        <form method="get"
+                              action="${pageContext.request.contextPath}/citas"
+                              class="row g-2 align-items-end">
+
                             <input type="hidden" name="accion" value="listar">
                             <input type="hidden" name="buscar" value="1">
+
                             <div class="col-12 col-md-4">
                                 <label class="form-label mb-1">DNI del paciente</label>
-                                <input type="text" class="form-control" name="dniPaciente" placeholder="Ingrese DNI" value="${dniPaciente}">
+                                <input type="text"
+                                       class="form-control"
+                                       name="dniPaciente"
+                                       placeholder="Ingrese DNI"
+                                       value="${fn:escapeXml(dniPaciente)}">
                             </div>
+
                             <div class="col-12 col-md-4">
                                 <label class="form-label mb-1">Medico</label>
+
                                 <select name="idMedico" class="form-select">
                                     <option value="0">Todos</option>
-                                    <% List<Medico> medicosFiltro = (List<Medico>) request.getAttribute("medicos"); %>
-                                    <% int idMedicoSel = request.getAttribute("idMedico") == null ? 0 : (Integer) request.getAttribute("idMedico"); %>
-                                    <% if (medicosFiltro != null) {
-                                           for (Medico m : medicosFiltro) {
-                                    %>
-                                        <option value="<%= m.getIdMedico() %>" <%= idMedicoSel == m.getIdMedico() ? "selected" : "" %>>
-                                            <%= m.getNombres() %> <%= m.getApellidos() %>
+
+                                    <c:forEach var="m" items="${medicos}">
+                                        <option value="${m.idMedico}" ${idMedico == m.idMedico ? 'selected' : ''}>
+                                            <c:out value="${m.nombres}" /> <c:out value="${m.apellidos}" />
                                         </option>
-                                    <%   }
-                                       } %>
+                                    </c:forEach>
                                 </select>
                             </div>
+
                             <div class="col-12 col-md-4">
                                 <label class="form-label mb-1">Especialidad</label>
+
                                 <select name="idEspecialidad" class="form-select">
                                     <option value="0">Todas</option>
-                                    <% List<Especialidad> especialidadesFiltro = (List<Especialidad>) request.getAttribute("especialidades"); %>
-                                    <% int idEspecialidadSel = request.getAttribute("idEspecialidad") == null ? 0 : (Integer) request.getAttribute("idEspecialidad"); %>
-                                    <% if (especialidadesFiltro != null) {
-                                           for (Especialidad e : especialidadesFiltro) {
-                                    %>
-                                        <option value="<%= e.getIdEspecialidad() %>" <%= idEspecialidadSel == e.getIdEspecialidad() ? "selected" : "" %>>
-                                            <%= e.getNombre() %>
+
+                                    <c:forEach var="e" items="${especialidades}">
+                                        <option value="${e.idEspecialidad}" ${idEspecialidad == e.idEspecialidad ? 'selected' : ''}>
+                                            <c:out value="${e.nombre}" />
                                         </option>
-                                    <%   }
-                                       } %>
+                                    </c:forEach>
                                 </select>
                             </div>
+
                             <div class="col-12 d-grid d-md-flex gap-2 justify-content-md-end">
-                                <button type="submit" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
-                                <a href="${pageContext.request.contextPath}/citas" class="btn btn-outline-success">Limpiar</a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+
+                                <a href="${pageContext.request.contextPath}/citas"
+                                   class="btn btn-outline-success">
+                                    Limpiar
+                                </a>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <% String msg = request.getParameter("msg"); %>
-                <% if ("ok".equals(msg)) { %>
-                    <div class="alert alert-success">Operacion realizada correctamente.</div>
-                <% } else if ("deleted".equals(msg)) { %>
-                    <div class="alert alert-warning">Cita anulada correctamente.</div>
-                <% } else if ("attended".equals(msg)) { %>
-                    <div class="alert alert-success">La cita fue marcada como ATENDIDA.</div>
-                <% } else if ("nochange".equals(msg)) { %>
-                    <div class="alert alert-info">No se pudo cambiar el estado. Verifique si la cita ya fue atendida o cancelada.</div>
-                <% } else if ("noexiste".equals(msg)) { %>
-                    <div class="alert alert-info">La cita solicitada no existe.</div>
-                <% } else if ("readonly".equals(msg)) { %>
-                    <div class="alert alert-info">La cita ya fue atendida y no puede editarse.</div>
-                <% } else if ("invalid".equals(msg)) { %>
-                    <div class="alert alert-danger">Solicitud invalida.</div>
-                <% } else if ("metodo_invalido".equals(msg)) { %>
-                    <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
-                <% } else if ("errorDelete".equals(msg)) { %>
-                    <div class="alert alert-danger">No se pudo anular la cita.</div>
-                <% } else if ("errorUpdate".equals(msg)) { %>
-                    <div class="alert alert-danger">No se pudo actualizar el estado de la cita.</div>
-                <% } %>
+                
+                    <!--
+                        Mensajes funcionales del módulo Citas.
+                        Mejora Fase 5:
+                        Se muestran mensajes más específicos y profesionales según la operación realizada.
+                    -->
+                    <c:choose>
+                        <c:when test="${param.msg == 'created'}">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                <strong>Cita registrada correctamente.</strong>
+                                La cita ya fue programada en el sistema.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'updated'}">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                <strong>Cita actualizada correctamente.</strong>
+                                Los cambios fueron guardados en el sistema.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'ok'}">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                <strong>Operacion realizada correctamente.</strong>
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'deleted'}">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Cita anulada correctamente.</strong>
+                                La cita quedó registrada como cancelada.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'attended'}">
+                            <div class="alert alert-success">
+                                <i class="bi bi-check2-square"></i>
+                                <strong>Cita marcada como ATENDIDA correctamente.</strong>
+                                El estado de atención fue actualizado.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'nochange'}">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>No se pudo cambiar el estado.</strong>
+                                Verifique si la cita ya fue atendida o cancelada.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'noexiste'}">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>La cita solicitada no existe.</strong>
+                                Es posible que ya no se encuentre activa en el sistema.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'readonly'}">
+                            <div class="alert alert-info">
+                                <i class="bi bi-lock"></i>
+                                <strong>La cita ya fue atendida.</strong>
+                                Por seguridad, no puede editarse.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'invalid'}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-x-circle"></i>
+                                <strong>Solicitud invalida.</strong>
+                                Verifique los datos enviados.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'metodo_invalido'}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-shield-lock"></i>
+                                <strong>Operacion no permitida.</strong>
+                                Esta acción no puede ejecutarse mediante este método.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'errorDelete'}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-x-circle"></i>
+                                <strong>No se pudo anular la cita.</strong>
+                                Intente nuevamente o revise el estado actual de la cita.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'errorUpdate'}">
+                            <div class="alert alert-danger">
+                                <i class="bi bi-x-circle"></i>
+                                <strong>No se pudo actualizar el estado de la cita.</strong>
+                                Intente nuevamente.
+                            </div>
+                        </c:when>
+                    </c:choose>
 
                 <div class="card border-0 shadow-sm">
                     <div class="card-body table-responsive">
@@ -138,88 +239,123 @@
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
+
                             <tbody>
-                                <% List<Cita> citas = (List<Cita>) request.getAttribute("citas"); %>
-                                <% boolean buscar = Boolean.TRUE.equals(request.getAttribute("buscar")); %>
-                                <% if (!buscar) { %>
-                                    <tr>
-                                        <td colspan="9" class="text-center text-muted py-4">Seleccione filtros y presione Buscar para ver resultados.</td>
-                                    </tr>
-                                <% } else if (citas == null || citas.isEmpty()) { %>
-                                    <tr>
-                                        <td colspan="9" class="text-center text-muted py-4">No hay registros.</td>
-                                    </tr>
-                                <% } else { %>
-                                    <% for (Cita c : citas) { %>
-                                        <% boolean esAtendida = "ATENDIDA".equalsIgnoreCase(c.getEstado()); %>
+                                <c:choose>
+
+                                    <c:when test="${buscar != true}">
                                         <tr>
-                                            <td><%= c.getIdCita() %></td>
-                                            <td><%= c.getPacienteDni() == null ? "" : c.getPacienteDni() %></td>
-                                            <td><%= c.getPacienteNombreCompleto() == null ? "" : c.getPacienteNombreCompleto() %></td>
-                                            <td><%= c.getMedicoNombreCompleto() == null ? "" : c.getMedicoNombreCompleto() %></td>
-                                            <td><%= c.getEspecialidad() == null ? "" : c.getEspecialidad() %></td>
-                                            <td><%= c.getFecha() == null ? "" : c.getFecha() %></td>
-                                            <td><%= c.getHora() == null ? "" : c.getHora() %></td>
-                                            <td>
-                                                <span class="badge <%= "CANCELADA".equalsIgnoreCase(c.getEstado()) ? "bg-secondary" : ("ATENDIDA".equalsIgnoreCase(c.getEstado()) ? "bg-primary" : "bg-success") %>">
-                                                    <%= c.getEstado() == null ? "" : c.getEstado() %>
-                                                </span>
+                                            <td colspan="9" class="text-center text-muted py-4">
+                                                Seleccione filtros y presione Buscar para ver resultados.
                                             </td>
-                                            
-                                            <td class="text-center">
-                                            <% if (!esAtendida) { %>
-                                                <!--
-                                                    Fase 3:
-                                                    Marcar como ATENDIDA ya no se ejecuta por enlace GET.
-                                                    Ahora se envía mediante formulario POST.
-                                                -->
-                                                <form action="${pageContext.request.contextPath}/citas"
-                                                      method="post"
-                                                      class="d-inline js-form-atender">
-                                                    <input type="hidden" name="accion" value="atender">
-                                                    <input type="hidden" name="id" value="<%= c.getIdCita() %>">
-
-                                                    <button type="submit"
-                                                            class="btn btn-outline-success btn-sm"
-                                                            title="Atender cita">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
-                                                </form>
-
-                                                <a href="${pageContext.request.contextPath}/citas?accion=editar&id=<%= c.getIdCita() %>"
-                                                   class="btn btn-outline-success btn-sm"
-                                                   title="Editar cita">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                            <% } %>
-
-                                            <!--
-                                                Fase 3:
-                                                Anular cita ya no se ejecuta por enlace GET.
-                                                Ahora se envía mediante formulario POST.
-                                            -->
-                                            <form action="${pageContext.request.contextPath}/citas"
-                                                  method="post"
-                                                  class="d-inline js-form-anular">
-                                                <input type="hidden" name="accion" value="eliminar">
-                                                <input type="hidden" name="id" value="<%= c.getIdCita() %>">
-
-                                                <button type="submit"
-                                                        class="btn btn-outline-danger btn-sm"
-                                                        title="Anular cita">
-                                                    <i class="bi bi-x-lg"></i>
-                                                </button>
-                                            </form>
-                                        </td>
                                         </tr>
-                                    <% } %>
-                                <% } %>
+                                    </c:when>
+
+                                    <c:when test="${empty citas}">
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted py-4">
+                                                No hay registros.
+                                            </td>
+                                        </tr>
+                                    </c:when>
+
+                                    <c:otherwise>
+                                        <c:forEach var="cita" items="${citas}">
+
+                                            <c:set var="estadoCita" value="${fn:toUpperCase(cita.estado)}" />
+
+                                            <c:set var="claseEstado" value="bg-success" />
+
+                                            <c:if test="${estadoCita == 'CANCELADA'}">
+                                                <c:set var="claseEstado" value="bg-secondary" />
+                                            </c:if>
+
+                                            <c:if test="${estadoCita == 'ATENDIDA'}">
+                                                <c:set var="claseEstado" value="bg-primary" />
+                                            </c:if>
+
+                                            <tr>
+                                                <!--
+                                                    Fase 5:
+                                                    Se usa c:out para escapar datos antes de mostrarlos.
+                                                    Esto ayuda a prevenir Cross-Site Scripting, XSS.
+                                                -->
+                                                <td><c:out value="${cita.idCita}" /></td>
+                                                <td><c:out value="${cita.pacienteDni}" /></td>
+                                                <td><c:out value="${cita.pacienteNombreCompleto}" /></td>
+                                                <td><c:out value="${cita.medicoNombreCompleto}" /></td>
+                                                <td><c:out value="${cita.especialidad}" /></td>
+                                                <td><c:out value="${cita.fecha}" /></td>
+                                                <td><c:out value="${cita.hora}" /></td>
+
+                                                <td>
+                                                    <span class="badge ${claseEstado}">
+                                                        <c:out value="${cita.estado}" />
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-center">
+
+                                                    <c:if test="${estadoCita != 'ATENDIDA'}">
+                                                        <!--
+                                                            Fase 3:
+                                                            Marcar como ATENDIDA se mantiene mediante POST.
+                                                            No se ejecuta por enlace GET.
+                                                        -->
+                                                        <form action="${pageContext.request.contextPath}/citas"
+                                                              method="post"
+                                                              class="d-inline js-form-atender">
+
+                                                            <input type="hidden" name="accion" value="atender">
+                                                            <input type="hidden" name="id" value="${cita.idCita}">
+
+                                                            <button type="submit"
+                                                                    class="btn btn-outline-success btn-sm"
+                                                                    title="Atender cita">
+                                                                <i class="bi bi-check-lg"></i>
+                                                            </button>
+                                                        </form>
+
+                                                        <a href="${pageContext.request.contextPath}/citas?accion=editar&id=${cita.idCita}"
+                                                           class="btn btn-outline-success btn-sm"
+                                                           title="Editar cita">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                    </c:if>
+
+                                                    <!--
+                                                        Fase 3:
+                                                        Anular cita se mantiene mediante POST.
+                                                        No se ejecuta por enlace GET.
+                                                    -->
+                                                    <form action="${pageContext.request.contextPath}/citas"
+                                                          method="post"
+                                                          class="d-inline js-form-anular">
+
+                                                        <input type="hidden" name="accion" value="eliminar">
+                                                        <input type="hidden" name="id" value="${cita.idCita}">
+
+                                                        <button type="submit"
+                                                                class="btn btn-outline-danger btn-sm"
+                                                                title="Anular cita">
+                                                            <i class="bi bi-x-lg"></i>
+                                                        </button>
+                                                    </form>
+
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </c:otherwise>
+                                </c:choose>
                             </tbody>
                         </table>
 
-                        <nav id="paginacion" class="mt-3 d-flex flex-column align-items-center gap-2" style="display:none">
+                        <nav id="paginacion"
+                             class="mt-3 d-flex flex-column align-items-center gap-2"
+                             style="display:none">
                             <span id="pag-info" class="text-muted small text-center"></span>
-                            <ul class="pagination pagination-sm mb-0 justify-content-center" id="pag-controles"></ul>
+                            <ul class="pagination pagination-sm mb-0 justify-content-center"
+                                id="pag-controles"></ul>
                         </nav>
                     </div>
                 </div>
@@ -230,39 +366,57 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            /* ── Paginado de 10 filas ── */
+            /*
+                Paginado simple del lado del cliente.
+                Muestra 10 registros por página.
+            */
             (function () {
                 const FILAS_POR_PAGINA = 10;
                 const tbody = document.querySelector(".table tbody");
-                if (!tbody) return;
+
+                if (!tbody) {
+                    return;
+                }
 
                 const filas = Array.from(tbody.querySelectorAll("tr")).filter(function (tr) {
                     return tr.querySelectorAll("td").length > 1;
                 });
 
-                if (filas.length === 0) return;
+                if (filas.length === 0) {
+                    return;
+                }
 
                 const totalPaginas = Math.ceil(filas.length / FILAS_POR_PAGINA);
                 let paginaActual = 1;
 
-                const paginacion  = document.getElementById("paginacion");
-                const info        = document.getElementById("pag-info");
-                const controles   = document.getElementById("pag-controles");
+                const paginacion = document.getElementById("paginacion");
+                const info = document.getElementById("pag-info");
+                const controles = document.getElementById("pag-controles");
+
                 paginacion.style.display = "flex";
 
                 function mostrarPagina(pagina) {
                     paginaActual = pagina;
+
                     const inicio = (pagina - 1) * FILAS_POR_PAGINA;
-                    const fin    = inicio + FILAS_POR_PAGINA;
+                    const fin = inicio + FILAS_POR_PAGINA;
 
                     filas.forEach(function (tr, i) {
                         tr.style.display = (i >= inicio && i < fin) ? "" : "none";
                     });
 
-                    info.textContent = "Mostrando " + (inicio + 1) + " - " + Math.min(fin, filas.length) + " de " + filas.length + " registros";
+                    info.textContent = "Mostrando "
+                            + (inicio + 1)
+                            + " - "
+                            + Math.min(fin, filas.length)
+                            + " de "
+                            + filas.length
+                            + " registros";
+
                     renderControles();
                 }
 
@@ -272,7 +426,15 @@
                     var prev = document.createElement("li");
                     prev.className = "page-item" + (paginaActual === 1 ? " disabled" : "");
                     prev.innerHTML = '<a class="page-link" href="#">&laquo;</a>';
-                    prev.addEventListener("click", function (e) { e.preventDefault(); if (paginaActual > 1) mostrarPagina(paginaActual - 1); });
+
+                    prev.addEventListener("click", function (e) {
+                        e.preventDefault();
+
+                        if (paginaActual > 1) {
+                            mostrarPagina(paginaActual - 1);
+                        }
+                    });
+
                     controles.appendChild(prev);
 
                     for (var p = 1; p <= totalPaginas; p++) {
@@ -280,7 +442,12 @@
                             var li = document.createElement("li");
                             li.className = "page-item" + (pg === paginaActual ? " active" : "");
                             li.innerHTML = '<a class="page-link" href="#">' + pg + '</a>';
-                            li.addEventListener("click", function (e) { e.preventDefault(); mostrarPagina(pg); });
+
+                            li.addEventListener("click", function (e) {
+                                e.preventDefault();
+                                mostrarPagina(pg);
+                            });
+
                             controles.appendChild(li);
                         })(p);
                     }
@@ -288,57 +455,66 @@
                     var next = document.createElement("li");
                     next.className = "page-item" + (paginaActual === totalPaginas ? " disabled" : "");
                     next.innerHTML = '<a class="page-link" href="#">&raquo;</a>';
-                    next.addEventListener("click", function (e) { e.preventDefault(); if (paginaActual < totalPaginas) mostrarPagina(paginaActual + 1); });
+
+                    next.addEventListener("click", function (e) {
+                        e.preventDefault();
+
+                        if (paginaActual < totalPaginas) {
+                            mostrarPagina(paginaActual + 1);
+                        }
+                    });
+
                     controles.appendChild(next);
                 }
 
                 mostrarPagina(1);
             })();
 
-            /* ── SweetAlert2 confirmaciones ──
+            /*
+                SweetAlert2 confirmaciones.
                 Fase 3:
-                Las confirmaciones ya no redirigen por URL.
-                Ahora confirman y envían formularios POST.
-             */
-             document.querySelectorAll(".js-form-atender").forEach(function (form) {
-                 form.addEventListener("submit", function (event) {
-                     event.preventDefault();
+                Las confirmaciones no redirigen por URL.
+                Confirman y envían formularios POST.
+            */
+            document.querySelectorAll(".js-form-atender").forEach(function (form) {
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
 
-                     Swal.fire({
-                         title: "Marcar como ATENDIDA",
-                         text: "La cita cambiara a estado ATENDIDA.",
-                         icon: "question",
-                         showCancelButton: true,
-                         confirmButtonText: "Si, atender",
-                         cancelButtonText: "Cancelar",
-                         confirmButtonColor: "#198754"
-                     }).then(function (result) {
-                         if (result.isConfirmed) {
-                             form.submit();
-                         }
-                     });
-                 });
-             });
+                    Swal.fire({
+                        title: "Marcar como ATENDIDA",
+                        text: "La cita cambiara a estado ATENDIDA.",
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonText: "Si, atender",
+                        cancelButtonText: "Cancelar",
+                        confirmButtonColor: "#198754"
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
 
-             document.querySelectorAll(".js-form-anular").forEach(function (form) {
-                 form.addEventListener("submit", function (event) {
-                     event.preventDefault();
+            document.querySelectorAll(".js-form-anular").forEach(function (form) {
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
 
-                     Swal.fire({
-                         title: "Anular cita",
-                         text: "Esta accion anulara la cita seleccionada.",
-                         icon: "warning",
-                         showCancelButton: true,
-                         confirmButtonText: "Si, anular",
-                         cancelButtonText: "Cancelar",
-                         confirmButtonColor: "#dc3545"
-                     }).then(function (result) {
-                         if (result.isConfirmed) {
-                             form.submit();
-                         }
-                     });
-                 });
-             });
+                    Swal.fire({
+                        title: "Anular cita",
+                        text: "Esta accion anulara la cita seleccionada.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Si, anular",
+                        cancelButtonText: "Cancelar",
+                        confirmButtonColor: "#dc3545"
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         });
     </script>
 </body>

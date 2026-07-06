@@ -427,6 +427,63 @@ Tabla paciente
 
 ## 9. Seguridad actual
 
+## Seguridad en vistas JSP
+
+En la versión V2.1 se reforzó la capa de presentación para reducir el riesgo de Cross-Site Scripting, XSS.
+
+Antes, algunas vistas mostraban datos dinámicos usando expresiones directas de JSP como:
+
+```jsp
+<%= objeto.getCampo() %>
+```
+
+En la Fase 5, estas salidas fueron reemplazadas por JSTL mediante etiquetas más seguras como:
+
+```jsp
+<c:out value="${objeto.campo}" />
+```
+
+Además, en los formularios se aplicó escape XML para los valores que se muestran dentro de atributos `value`:
+
+```jsp
+${fn:escapeXml(valor)}
+```
+
+Esto permite que los datos ingresados por los usuarios se muestren como texto seguro, evitando que fragmentos HTML o JavaScript se ejecuten en el navegador.
+
+### Archivos principales protegidos
+
+Se protegieron los listados de los siguientes módulos:
+
+- Pacientes
+- Médicos
+- Especialidades
+- Horarios
+- Citas
+- Agenda Médica
+
+También se protegieron los formularios principales de:
+
+- Pacientes
+- Médicos
+- Especialidades
+- Horarios
+- Citas
+
+### Resultado arquitectónico
+
+Esta mejora fortalece la capa de presentación dentro de la arquitectura MVC del sistema, porque evita que las vistas JSP impriman datos dinámicos sin escape.
+
+También complementa las mejoras anteriores de seguridad:
+
+- Hash de contraseñas con BCrypt.
+- Operaciones críticas mediante POST.
+- Control de acceso por roles.
+- Página personalizada de acceso denegado.
+- Identidad de sesión visible en la interfaz.
+
+Con esta mejora, el sistema reduce el riesgo de XSS reflejado o almacenado y presenta los datos de forma más segura para el usuario final.
+
 El sistema cuenta con seguridad básica mediante:
 
 - Login.
@@ -571,3 +628,4 @@ Sistema funcional con mejoras de integridad de datos, autenticación y protecci�
 El Sistema de Citas Médicas NovaSalud V2.1 mantiene una arquitectura MVC por capas, con DAO, Service Layer, filtros de seguridad, utilidades de autenticación y conexión JDBC a MySQL.
 
 Las mejoras aplicadas fortalecen la integridad de datos, la autenticación y la seguridad de operaciones críticas. El sistema queda preparado para continuar con mejoras de control de roles, protección CSRF, sanitización de vistas JSP, auditoría y refinamiento funcional.
+
