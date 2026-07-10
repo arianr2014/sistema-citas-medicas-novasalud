@@ -2,6 +2,8 @@ package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.CitaDAO;
 import com.mycompany.miprimeraweb.dao.HorarioDAO;
+import com.mycompany.miprimeraweb.dao.CitaDAOImpl;
+import com.mycompany.miprimeraweb.dao.HorarioDAOImpl;
 import com.mycompany.miprimeraweb.model.Cita;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -10,8 +12,8 @@ import java.util.List;
 
 public class CitaService {
 
-    private final CitaDAO citaDAO = new CitaDAO();
-    private final HorarioDAO horarioDAO = new HorarioDAO();
+    private final CitaDAO citaDAO = new CitaDAOImpl();
+    private final HorarioDAO horarioDAO = new HorarioDAOImpl();
 
     public List<Cita> listarFiltrado(String dniPaciente, int idMedico, int idEspecialidad) throws SQLException {
         return citaDAO.listarFiltrado(dniPaciente, idMedico, idEspecialidad);

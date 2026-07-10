@@ -50,7 +50,7 @@ CREATE TABLE medico (
   id_medico int(11) NOT NULL AUTO_INCREMENT,
   nombres varchar(100) DEFAULT NULL,
   apellidos varchar(100) DEFAULT NULL,
-  id_especialidad int(11) DEFAULT NULL,
+  id_especialidad int(11) NOT NULL,
   telefono varchar(20) DEFAULT NULL,
   correo varchar(100) DEFAULT NULL,
   usuario_registro varchar(50) DEFAULT NULL,
@@ -64,8 +64,8 @@ CREATE TABLE medico (
 
 CREATE TABLE cita (
   id_cita int(11) NOT NULL AUTO_INCREMENT,
-  id_paciente int(11) DEFAULT NULL,
-  id_medico int(11) DEFAULT NULL,
+  id_paciente int(11) NOT NULL,
+  id_medico int(11) NOT NULL,
   fecha date DEFAULT NULL,
   hora time DEFAULT NULL,
   estado varchar(20) DEFAULT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE cita (
 
 CREATE TABLE horario (
   id_horario int(11) NOT NULL AUTO_INCREMENT,
-  id_medico int(11) DEFAULT NULL,
+  id_medico int(11) NOT NULL,
   dia varchar(20) DEFAULT NULL,
   hora_inicio time DEFAULT NULL,
   hora_fin time DEFAULT NULL,

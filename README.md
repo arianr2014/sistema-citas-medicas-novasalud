@@ -601,3 +601,157 @@ Estado actual:
 - Documentación técnica principal actualizada.
 
 El sistema está listo para continuar con la Fase 6: creación del módulo visual de gestión de usuarios para el rol ADMIN.
+
+---
+
+## 16. Wireframes Mobile y evidencia responsive
+
+Como respaldo documental para PF3, se define la versión Mobile de pantallas clave usando una grilla de 1 columna para celulares y distribución por columnas para tablet y desktop.
+
+### 16.1. Wireframe Mobile - Login
+
+```text
++----------------------------------+
+| NOVASALUD                        |
+| Bienvenido                       |
+|                                  |
+| Usuario                          |
+| [____________________________]   |
+|                                  |
+| Contrasena                       |
+| [____________________________]   |
+|                                  |
+| [        INGRESAR             ]  |
++----------------------------------+
+```
+
+### 16.2. Wireframe Mobile - Listado de Pacientes
+
+```text
++----------------------------------+
+| Menu | Sistema de Citas          |
+| Modulo: Pacientes                |
+| Usuario / Rol                    |
++----------------------------------+
+| Buscar por DNI/Nombres           |
+| [____________________________]   |
+| [Buscar] [Limpiar]               |
++----------------------------------+
+| ID | Paciente | Telefono         |
+| ... registros ...                |
++----------------------------------+
+```
+
+### 16.3. Wireframe Mobile - Formulario de Citas
+
+```text
++----------------------------------+
+| Paciente (DNI)                   |
+| [____________________________]   |
+|                                  |
+| Especialidad                     |
+| [____________________________]   |
+| Medico                           |
+| [____________________________]   |
+| Fecha                            |
+| [____________________________]   |
+| Hora                             |
+| [____________________________]   |
+|                                  |
+| [       GUARDAR CITA         ]   |
++----------------------------------+
+```
+
+### 16.4. Evidencia de clases responsive aplicadas
+
+- Se usa `meta viewport` en `layout/head.jspf`.
+- Se aplican clases Bootstrap `col-sm-*` y `col-md-*` en las vistas de módulos.
+- Se incorporó soporte móvil en vistas generales, incluyendo `auth/login.jsp` y `error/acceso-denegado.jsp`.
+- La navegación lateral usa patrón móvil con `offcanvas`.
+
+### 16.5. Criterio de grilla por dispositivo
+
+- Mobile (<576px): `col-12`.
+- Small (>=576px): `col-sm-*` para transición vertical estable.
+- Medium (>=768px): `col-md-*` para formularios en dos o más columnas.
+- Large (>=992px): `col-lg-*` para dashboard completo con menú lateral.
+
+
+
+## 17 Estructura de carpetas del proyecto (actualizada)
+
+La siguiente estructura resume los directorios y archivos principales de la solución para documentación del Capítulo de Arquitectura:
+
+```text
+proyecto/
+├── ARQUITECTURA_PROYECTO.md
+├── README.md
+├── CHANGELOG_V2.1.md
+├── pom.xml
+├── database/
+│   ├── 01 -  bd - tablas.sql
+│   ├── 02 -  data - usuario.sql
+│   ├── 03 -  stores.sql
+│   ├── 04 - crear usuario acceso.sql
+│   └── migrations/
+│       ├── migracion_v2_1_eliminacion_logica.sql
+│       └── migracion_v2_1_hash_passwords.sql
+├── src/
+│   ├── main/
+│   │   ├── java/com/mycompany/miprimeraweb/
+│   │   │   ├── controller/
+│   │   │   │   ├── AuthController.java
+│   │   │   │   ├── HomeController.java
+│   │   │   │   ├── PacienteController.java
+│   │   │   │   ├── MedicoController.java
+│   │   │   │   ├── EspecialidadController.java
+│   │   │   │   ├── HorarioController.java
+│   │   │   │   ├── CitaController.java
+│   │   │   │   ├── AgendaMedicoController.java
+│   │   │   │   └── AccesoDenegadoController.java
+│   │   │   ├── service/
+│   │   │   │   ├── PacienteService.java
+│   │   │   │   ├── MedicoService.java
+│   │   │   │   ├── EspecialidadService.java
+│   │   │   │   ├── HorarioService.java
+│   │   │   │   └── CitaService.java
+│   │   │   ├── dao/
+│   │   │   │   ├── PacienteDAO.java / PacienteDAOImpl.java
+│   │   │   │   ├── MedicoDAO.java / MedicoDAOImpl.java
+│   │   │   │   ├── EspecialidadDAO.java / EspecialidadDAOImpl.java
+│   │   │   │   ├── HorarioDAO.java / HorarioDAOImpl.java
+│   │   │   │   ├── CitaDAO.java / CitaDAOImpl.java
+│   │   │   │   └── UsuarioDAO.java / UsuarioDAOImpl.java
+│   │   │   ├── model/
+│   │   │   │   ├── Usuario.java
+│   │   │   │   ├── Paciente.java
+│   │   │   │   ├── Medico.java
+│   │   │   │   ├── Especialidad.java
+│   │   │   │   ├── Horario.java
+│   │   │   │   └── Cita.java
+│   │   │   ├── filter/
+│   │   │   │   └── AuthFilter.java
+│   │   │   ├── util/
+│   │   │   │   ├── ConexionDB.java
+│   │   │   │   └── PasswordUtil.java
+│   │   │   └── resources/
+│   │   ├── resources/META-INF/persistence.xml
+│   │   └── webapp/
+│   │       ├── css/app.css
+│   │       └── WEB-INF/
+│   │           ├── web.xml
+│   │           ├── beans.xml
+│   │           └── views/
+│   │               ├── auth/
+│   │               ├── home/
+│   │               ├── paciente/
+│   │               ├── medico/
+│   │               ├── especialidad/
+│   │               ├── horario/
+│   │               ├── cita/
+│   │               ├── agenda/
+│   │               ├── error/
+│   │               └── layout/
+│   └── test/java/com/mycompany/miprimeraweb/
+└── target/
+```

@@ -15,6 +15,24 @@ public class Cita {
     private String medicoNombreCompleto;
     private String especialidad;
 
+    public Cita() {
+    }
+
+    public Cita(int idCita, int idPaciente, int idMedico, String fecha, String hora, String estado, String observaciones,
+            String pacienteDni, String pacienteNombreCompleto, String medicoNombreCompleto, String especialidad) {
+        this.idCita = idCita;
+        this.idPaciente = idPaciente;
+        this.idMedico = idMedico;
+        this.fecha = fecha;
+        this.hora = hora;
+        this.estado = estado;
+        this.observaciones = observaciones;
+        this.pacienteDni = pacienteDni;
+        this.pacienteNombreCompleto = pacienteNombreCompleto;
+        this.medicoNombreCompleto = medicoNombreCompleto;
+        this.especialidad = especialidad;
+    }
+
     public int getIdCita() {
         return idCita;
     }

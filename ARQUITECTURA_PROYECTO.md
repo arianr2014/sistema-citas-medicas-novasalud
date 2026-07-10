@@ -55,6 +55,8 @@ La capa de presentación está compuesta por archivos JSP, HTML, CSS, Bootstrap 
 
 Su responsabilidad es mostrar la información al usuario y enviar solicitudes al backend mediante formularios, botones y enlaces del sistema.
 
+En la versión actual, las vistas están adaptadas para uso móvil mediante Bootstrap, incluyendo clases responsivas como `col-sm-*` y `col-md-*`, además del uso de `viewport` en el layout principal.
+
 Ubicación principal:
 
 ```text
@@ -206,15 +208,24 @@ Responsabilidades principales:
 
 DAO principales:
 
-- `UsuarioDAO.java`
-- `PacienteDAO.java`
-- `MedicoDAO.java`
-- `EspecialidadDAO.java`
-- `HorarioDAO.java`
-- `CitaDAO.java`
-- `DashboardDAO.java`
+- Interfaces DAO:
+        - `UsuarioDAO.java`
+        - `PacienteDAO.java`
+        - `MedicoDAO.java`
+        - `EspecialidadDAO.java`
+        - `HorarioDAO.java`
+        - `CitaDAO.java`
+- Implementaciones DAO:
+        - `UsuarioDAOImpl.java`
+        - `PacienteDAOImpl.java`
+        - `MedicoDAOImpl.java`
+        - `EspecialidadDAOImpl.java`
+        - `HorarioDAOImpl.java`
+        - `CitaDAOImpl.java`
 
 En la versión V2.1 se actualizaron los DAO de pacientes, médicos, especialidades y horarios para trabajar con eliminación lógica mediante el campo `estado_registro`.
+
+Además, se formalizó el patrón Interface + Implementación para cumplir lineamientos académicos de desacoplamiento entre capa Service y capa de acceso a datos.
 
 ---
 
@@ -484,7 +495,7 @@ El sistema aplica un esquema RBAC, Role-Based Access Control, donde cada usuario
 Matriz de acceso aplicada:
 
 | Módulo | ADMIN | RECEPCIONISTA | DOCTOR |
-|---|---:|---:|---:|
+| --- | ---: | ---: | ---: |
 | Inicio / Dashboard | Sí | No | No |
 | Pacientes | Sí | Sí | No |
 | Médicos | Sí | No | No |
@@ -654,3 +665,83 @@ El Sistema de Citas Médicas NovaSalud V2.1 mantiene una arquitectura MVC por ca
 Las mejoras aplicadas fortalecen la integridad de datos, la autenticación, el control de acceso, la seguridad de operaciones críticas y la protección de la capa de presentación frente a XSS.
 
 El sistema queda preparado para continuar con la siguiente mejora: creación del módulo visual de gestión de usuarios para el rol ADMIN.
+
+---
+
+## 16. Estructura de carpetas del proyecto (actualizada)
+
+La siguiente estructura resume los directorios y archivos principales de la solución para documentación del Capítulo de Arquitectura:
+
+```text
+proyecto/
+├── ARQUITECTURA_PROYECTO.md
+├── README.md
+├── CHANGELOG_V2.1.md
+├── pom.xml
+├── database/
+│   ├── 01 -  bd - tablas.sql
+│   ├── 02 -  data - usuario.sql
+│   ├── 03 -  stores.sql
+│   ├── 04 - crear usuario acceso.sql
+│   └── migrations/
+│       ├── migracion_v2_1_eliminacion_logica.sql
+│       └── migracion_v2_1_hash_passwords.sql
+├── src/
+│   ├── main/
+│   │   ├── java/com/mycompany/miprimeraweb/
+│   │   │   ├── controller/
+│   │   │   │   ├── AuthController.java
+│   │   │   │   ├── HomeController.java
+│   │   │   │   ├── PacienteController.java
+│   │   │   │   ├── MedicoController.java
+│   │   │   │   ├── EspecialidadController.java
+│   │   │   │   ├── HorarioController.java
+│   │   │   │   ├── CitaController.java
+│   │   │   │   ├── AgendaMedicoController.java
+│   │   │   │   └── AccesoDenegadoController.java
+│   │   │   ├── service/
+│   │   │   │   ├── PacienteService.java
+│   │   │   │   ├── MedicoService.java
+│   │   │   │   ├── EspecialidadService.java
+│   │   │   │   ├── HorarioService.java
+│   │   │   │   └── CitaService.java
+│   │   │   ├── dao/
+│   │   │   │   ├── PacienteDAO.java / PacienteDAOImpl.java
+│   │   │   │   ├── MedicoDAO.java / MedicoDAOImpl.java
+│   │   │   │   ├── EspecialidadDAO.java / EspecialidadDAOImpl.java
+│   │   │   │   ├── HorarioDAO.java / HorarioDAOImpl.java
+│   │   │   │   ├── CitaDAO.java / CitaDAOImpl.java
+│   │   │   │   └── UsuarioDAO.java / UsuarioDAOImpl.java
+│   │   │   ├── model/
+│   │   │   │   ├── Usuario.java
+│   │   │   │   ├── Paciente.java
+│   │   │   │   ├── Medico.java
+│   │   │   │   ├── Especialidad.java
+│   │   │   │   ├── Horario.java
+│   │   │   │   └── Cita.java
+│   │   │   ├── filter/
+│   │   │   │   └── AuthFilter.java
+│   │   │   ├── util/
+│   │   │   │   ├── ConexionDB.java
+│   │   │   │   └── PasswordUtil.java
+│   │   │   └── resources/
+│   │   ├── resources/META-INF/persistence.xml
+│   │   └── webapp/
+│   │       ├── css/app.css
+│   │       └── WEB-INF/
+│   │           ├── web.xml
+│   │           ├── beans.xml
+│   │           └── views/
+│   │               ├── auth/
+│   │               ├── home/
+│   │               ├── paciente/
+│   │               ├── medico/
+│   │               ├── especialidad/
+│   │               ├── horario/
+│   │               ├── cita/
+│   │               ├── agenda/
+│   │               ├── error/
+│   │               └── layout/
+│   └── test/java/com/mycompany/miprimeraweb/
+└── target/
+```
