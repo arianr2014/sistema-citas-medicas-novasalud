@@ -12,6 +12,22 @@ public class Horario {
     private String usuarioRegistro;
     private String fechaRegistro;
 
+    public Horario() {
+    }
+
+    public Horario(int idHorario, int idMedico, String dia, String horaInicio, String horaFin,
+            String medicoNombreCompleto, String especialidad, String usuarioRegistro, String fechaRegistro) {
+        this.idHorario = idHorario;
+        this.idMedico = idMedico;
+        this.dia = dia;
+        this.horaInicio = horaInicio;
+        this.horaFin = horaFin;
+        this.medicoNombreCompleto = medicoNombreCompleto;
+        this.especialidad = especialidad;
+        this.usuarioRegistro = usuarioRegistro;
+        this.fechaRegistro = fechaRegistro;
+    }
+
     public int getIdHorario() {
         return idHorario;
     }

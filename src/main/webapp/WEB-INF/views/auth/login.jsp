@@ -11,7 +11,7 @@
         <div class="login-shell shadow-lg">
             <div class="row g-0 h-100">
 
-                <aside class="col-12 col-lg-5 login-panel-left">
+                <aside class="col-12 col-sm-12 col-md-6 col-lg-5 login-panel-left">
                     <div class="login-panel-inner">
                         <div class="login-brand mb-4">
                             <div class="login-brand-icon">
@@ -59,7 +59,7 @@
                     </div>
                 </aside>
 
-                <section class="col-12 col-lg-7 login-panel-right">
+                <section class="col-12 col-sm-12 col-md-6 col-lg-7 login-panel-right">
                     <div class="login-form-wrap">
                         <h1 class="login-form-title">Iniciar Sesion</h1>
                         <p class="login-form-subtitle">Ingresa tus credenciales para continuar</p>

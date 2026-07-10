@@ -1,9 +1,13 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.EspecialidadDAO;
+import com.mycompany.miprimeraweb.dao.EspecialidadDAOImpl;
 import com.mycompany.miprimeraweb.dao.HorarioDAO;
+import com.mycompany.miprimeraweb.dao.HorarioDAOImpl;
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
+import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.dao.PacienteDAO;
+import com.mycompany.miprimeraweb.dao.PacienteDAOImpl;
 import com.mycompany.miprimeraweb.model.Cita;
 import com.mycompany.miprimeraweb.model.Especialidad;
 import com.mycompany.miprimeraweb.model.Medico;
@@ -32,10 +36,10 @@ import java.util.List;
 public class CitaController extends HttpServlet {
 
     private final CitaService citaService = new CitaService();
-    private final PacienteDAO pacienteDAO = new PacienteDAO();
-    private final MedicoDAO medicoDAO = new MedicoDAO();
-    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
-    private final HorarioDAO horarioDAO = new HorarioDAO();
+    private final PacienteDAO pacienteDAO = new PacienteDAOImpl();
+    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAOImpl();
+    private final HorarioDAO horarioDAO = new HorarioDAOImpl();
 
     /**
      * Atiende navegación y consultas.

@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
+import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.model.Cita;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.service.CitaService;
@@ -19,7 +20,7 @@ import java.util.List;
 public class AgendaMedicoController extends HttpServlet {
 
     private final CitaService citaService = new CitaService();
-    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

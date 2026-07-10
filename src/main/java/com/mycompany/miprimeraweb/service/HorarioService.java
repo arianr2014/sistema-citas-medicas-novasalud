@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.HorarioDAO;
+import com.mycompany.miprimeraweb.dao.HorarioDAOImpl;
 import com.mycompany.miprimeraweb.model.Horario;
 import java.sql.SQLException;
 import java.time.LocalTime;
@@ -19,7 +20,7 @@ public class HorarioService {
             "lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"
     ));
 
-    private final HorarioDAO horarioDAO = new HorarioDAO();
+    private final HorarioDAO horarioDAO = new HorarioDAOImpl();
 
     public List<Horario> listar(String filtro) throws SQLException {
         return horarioDAO.listar(filtro);

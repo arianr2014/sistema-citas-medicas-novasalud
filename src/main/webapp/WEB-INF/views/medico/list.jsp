@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fn" uri="jakarta.tags.functions"%>
-<% request.setAttribute("pageTitle", "Medicos"); %>
+<c:set var="pageTitle" value="Medicos" />
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
