@@ -755,3 +755,15 @@ proyecto/
 │   └── test/java/com/mycompany/miprimeraweb/
 └── target/
 ```
+
+---
+
+## 18. Diagramas de Arquitectura y UML
+
+### 18.1. Diagrama de Clases UML
+
+![Diagrama de Clases UML](img/Diagrama%20de%20Clases%20UML.png)
+
+### 18.2. Arquitectura del Software
+
+![Arquitectura del software](img/Arquitectura%20del%20software.png)
