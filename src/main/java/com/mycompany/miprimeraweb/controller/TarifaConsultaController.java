@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.EspecialidadDAO;
+import com.mycompany.miprimeraweb.dao.EspecialidadDAOImpl;
 import com.mycompany.miprimeraweb.model.TarifaConsulta;
 import com.mycompany.miprimeraweb.service.TarifaConsultaService;
 import com.mycompany.miprimeraweb.util.AppLogger;
@@ -18,7 +19,7 @@ import java.sql.SQLException;
 @WebServlet("/tarifas")
 public class TarifaConsultaController extends HttpServlet {
     private final TarifaConsultaService service = new TarifaConsultaService();
-    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAOImpl();
 
     @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {

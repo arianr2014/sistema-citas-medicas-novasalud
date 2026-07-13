@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.EspecialidadDAO;
+import com.mycompany.miprimeraweb.dao.EspecialidadDAOImpl;
 import com.mycompany.miprimeraweb.model.Especialidad;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.service.MedicoService;
@@ -25,7 +26,7 @@ import java.util.List;
 public class MedicoController extends HttpServlet {
 
     private final MedicoService medicoService = new MedicoService();
-    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAOImpl();
 
     /**
      * Atiende solicitudes de navegación y consulta.
