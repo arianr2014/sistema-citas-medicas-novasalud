@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.CitaDAO;
+import com.mycompany.miprimeraweb.dao.CitaDAOImpl;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,7 +18,7 @@ import java.util.Map;
 @WebServlet("/inicio")
 public class HomeController extends HttpServlet {
 
-    private final CitaDAO citaDAO = new CitaDAO();
+    private final CitaDAO citaDAO = new CitaDAOImpl();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

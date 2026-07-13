@@ -1,13 +1,14 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
+import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.model.Medico;
 import java.sql.SQLException;
 import java.util.List;
 
 public class MedicoService {
 
-    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
 
     public List<Medico> listar(String filtro) throws SQLException {
         return medicoDAO.listar(filtro);

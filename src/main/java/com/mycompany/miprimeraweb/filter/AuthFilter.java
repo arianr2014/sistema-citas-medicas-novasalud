@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.filter;
 
 import com.mycompany.miprimeraweb.dao.UsuarioDAO;
+import com.mycompany.miprimeraweb.dao.UsuarioDAOImpl;
 import com.mycompany.miprimeraweb.util.CsrfUtil;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -27,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 @WebFilter("/*")
 public class AuthFilter implements Filter {
 
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
 
     @Override public void init(FilterConfig filterConfig) throws ServletException { }
 

@@ -326,4 +326,77 @@ public class CitaDAOImpl implements CitaDAO {
     private String formatHora(Time time) {
         return time == null ? "" : time.toLocalTime().format(HORA_MINUTOS);
     }
+
+    @Override
+    public List<Cita> listarAgendaProgramadaFlexible(int idMedico, int idEspecialidad, String fecha) throws SQLException {
+        List<Cita> citas = new ArrayList<>();
+        StringBuilder sql = new StringBuilder(
+                "SELECT c.id_cita, c.id_paciente, c.id_medico, c.fecha, c.hora, c.estado, c.observaciones, "
+                + "p.dni, p.nombres AS paciente_nombres, p.apellidos AS paciente_apellidos, "
+                + "m.nombres AS medico_nombres, m.apellidos AS medico_apellidos, e.nombre AS especialidad "
+                + "FROM cita c "
+                + "INNER JOIN paciente p ON c.id_paciente = p.id_paciente "
+                + "INNER JOIN medico m ON c.id_medico = m.id_medico "
+                + "INNER JOIN especialidad e ON m.id_especialidad = e.id_especialidad "
+                + "WHERE c.estado_registro = 'ACTIVO' AND c.fecha = ? "
+                + "AND UPPER(COALESCE(c.estado,'')) IN ('PROGRAMADA','CONFIRMADA','REPROGRAMADA','EN_ESPERA','EN_CONSULTA','ATENDIDA','NO_ASISTIO') "
+        );
+        if (idMedico > 0) sql.append("AND c.id_medico = ? ");
+        if (idEspecialidad > 0) sql.append("AND m.id_especialidad = ? ");
+        sql.append("ORDER BY m.apellidos ASC, m.nombres ASC, c.hora ASC");
+        try (Connection connection = ConexionDB.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            int i = 1;
+            statement.setString(i++, fecha);
+            if (idMedico > 0) statement.setInt(i++, idMedico);
+            if (idEspecialidad > 0) statement.setInt(i, idEspecialidad);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) citas.add(mapperListado(rs));
+            }
+        }
+        return citas;
+    }
+
+    @Override
+    public Map<String, Integer> resumenMensualPorMedico(int idMedico, String inicioMes, String finMes) throws SQLException {
+        Map<String, Integer> resultado = new LinkedHashMap<>();
+        String sql = "SELECT fecha, COUNT(*) AS total FROM cita WHERE estado_registro='ACTIVO' AND id_medico=? AND fecha BETWEEN ? AND ? GROUP BY fecha ORDER BY fecha";
+        try (Connection connection = ConexionDB.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, idMedico);
+            statement.setString(2, inicioMes);
+            statement.setString(3, finMes);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) resultado.put(rs.getString("fecha"), rs.getInt("total"));
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public int contarCitasActivasMedicoFecha(int idMedico, String fecha, int idCitaExcluir) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM cita WHERE id_medico=? AND fecha=? AND estado_registro='ACTIVO' AND UPPER(estado) NOT IN ('CANCELADA','ANULADA','NO_ASISTIO') ");
+        if (idCitaExcluir > 0) sql.append("AND id_cita<>? ");
+        try (Connection connection = ConexionDB.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+            statement.setInt(1, idMedico);
+            statement.setString(2, fecha);
+            if (idCitaExcluir > 0) statement.setInt(3, idCitaExcluir);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    @Override
+    public boolean actualizarEstadoPorMedico(int idCita, int idMedico, String estado) throws SQLException {
+        String sql = "UPDATE cita SET estado=?, fecha_actualizacion=NOW() WHERE id_cita=? AND id_medico=? AND estado_registro='ACTIVO' AND UPPER(COALESCE(estado,'')) NOT IN ('ATENDIDA','ANULADA','CANCELADA','NO_ASISTIO')";
+        try (Connection connection = ConexionDB.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, estado == null ? "" : estado.trim().toUpperCase());
+            statement.setInt(2, idCita);
+            statement.setInt(3, idMedico);
+            return statement.executeUpdate() > 0;
+        }
+    }
 }

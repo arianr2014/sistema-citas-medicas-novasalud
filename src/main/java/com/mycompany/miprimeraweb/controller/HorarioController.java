@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
+import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.model.Horario;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.service.HorarioService;
@@ -25,7 +26,7 @@ import java.util.List;
 public class HorarioController extends HttpServlet {
 
     private final HorarioService horarioService = new HorarioService();
-    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
 
     /**
      * Atiende solicitudes de navegación y consulta.

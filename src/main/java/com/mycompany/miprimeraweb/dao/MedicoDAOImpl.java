@@ -162,4 +162,17 @@ public class MedicoDAOImpl implements MedicoDAO {
             statement.executeUpdate();
         }
     }
+
+    @Override
+    public int contarCitasActivasDia(int idMedico, String fecha) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM cita WHERE id_medico=? AND fecha=? AND estado_registro='ACTIVO' AND UPPER(estado) NOT IN ('CANCELADA','ANULADA','NO_ASISTIO')";
+        try (Connection connection = ConexionDB.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, idMedico);
+            statement.setString(2, fecha);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
 }

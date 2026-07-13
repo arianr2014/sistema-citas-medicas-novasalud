@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
+import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.model.Usuario;
 import com.mycompany.miprimeraweb.service.UsuarioService;
@@ -19,7 +20,7 @@ import java.util.List;
 @WebServlet("/usuarios")
 public class UsuarioController extends HttpServlet {
     private final UsuarioService service = new UsuarioService();
-    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
 
     @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String accion = texto(request.getParameter("accion"));

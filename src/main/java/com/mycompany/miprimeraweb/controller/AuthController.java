@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.UsuarioDAO;
+import com.mycompany.miprimeraweb.dao.UsuarioDAOImpl;
 import com.mycompany.miprimeraweb.model.Usuario;
 import com.mycompany.miprimeraweb.util.CsrfUtil;
 import jakarta.servlet.ServletException;
@@ -28,7 +29,7 @@ import java.sql.SQLException;
 @WebServlet({"/login", "/logout"})
 public class AuthController extends HttpServlet {
 
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
 
     /**
      * Atiende la navegación hacia login o logout.

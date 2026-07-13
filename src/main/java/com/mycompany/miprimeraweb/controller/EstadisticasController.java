@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.CitaDAO;
+import com.mycompany.miprimeraweb.dao.CitaDAOImpl;
 import com.mycompany.miprimeraweb.util.AppLogger;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 /** Estadísticas clínicas y operativas. */
 @WebServlet("/estadisticas")
 public class EstadisticasController extends HttpServlet {
-    private final CitaDAO citaDAO = new CitaDAO();
+    private final CitaDAO citaDAO = new CitaDAOImpl();
     @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String inicio = texto(request.getParameter("fechaInicio"));
         String fin = texto(request.getParameter("fechaFin"));

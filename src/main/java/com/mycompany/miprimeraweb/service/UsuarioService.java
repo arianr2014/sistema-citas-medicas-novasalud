@@ -1,13 +1,14 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.UsuarioDAO;
+import com.mycompany.miprimeraweb.dao.UsuarioDAOImpl;
 import com.mycompany.miprimeraweb.model.Usuario;
 import java.sql.SQLException;
 import java.util.List;
 
 /** Reglas de negocio del módulo Usuarios. */
 public class UsuarioService {
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
 
     public List<Usuario> listar(String filtro) throws SQLException { return usuarioDAO.listar(filtro); }
     public Usuario obtenerPorId(int id) throws SQLException { return usuarioDAO.obtenerPorId(id); }

@@ -1,6 +1,7 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.CitaDAO;
+import com.mycompany.miprimeraweb.dao.CitaDAOImpl;
 import com.mycompany.miprimeraweb.service.PagoService;
 import com.mycompany.miprimeraweb.util.AppLogger;
 import jakarta.servlet.ServletException;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 /** Dashboard ejecutivo para Dirección. */
 @WebServlet("/direccion")
 public class DireccionController extends HttpServlet {
-    private final CitaDAO citaDAO = new CitaDAO();
+    private final CitaDAO citaDAO = new CitaDAOImpl();
     private final PagoService pagoService = new PagoService();
     @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         LocalDate hoy = LocalDate.now();

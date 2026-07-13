@@ -1,8 +1,11 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.CitaDAO;
+import com.mycompany.miprimeraweb.dao.CitaDAOImpl;
 import com.mycompany.miprimeraweb.dao.HorarioDAO;
+import com.mycompany.miprimeraweb.dao.HorarioDAOImpl;
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
+import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.dao.PagoDAO;
 import com.mycompany.miprimeraweb.dao.TarifaConsultaDAO;
 import com.mycompany.miprimeraweb.model.Cita;
@@ -24,9 +27,9 @@ public class CitaService {
             "PROGRAMADA", "CONFIRMADA", "REPROGRAMADA", "CANCELADA", "NO_ASISTIO", "EN_ESPERA"
     ));
 
-    private final CitaDAO citaDAO = new CitaDAO();
-    private final HorarioDAO horarioDAO = new HorarioDAO();
-    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final CitaDAO citaDAO = new CitaDAOImpl();
+    private final HorarioDAO horarioDAO = new HorarioDAOImpl();
+    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
     private final TarifaConsultaDAO tarifaDAO = new TarifaConsultaDAO();
     private final PagoDAO pagoDAO = new PagoDAO();
 
