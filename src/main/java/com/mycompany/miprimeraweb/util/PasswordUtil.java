@@ -1,55 +1,41 @@
 package com.mycompany.miprimeraweb.util;
-/**
- * author@: FRNACK
- */
+
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
- * Utilidad para generar y verificar contraseñas con BCrypt.
- * Mejora Fase 2: evita comparar contraseñas directamente en texto plano.
+ * Utilidad de contraseñas del sistema.
+ *
+ * V3.2:
+ * - Se mantiene BCrypt como mecanismo único de validación.
+ * - Se elimina la compatibilidad con contraseñas en texto plano usada solo durante migración.
+ * - Esto evita que una contraseña plana insertada por error sea aceptada por el login.
  */
 public final class PasswordUtil {
 
     private PasswordUtil() {
+        // Clase utilitaria: no debe instanciarse.
     }
 
-    /**
-     * Genera un hash seguro BCrypt a partir de una contraseña en texto plano.
-     *
-     * @param passwordPlano contraseña escrita por el usuario.
-     * @return hash BCrypt listo para guardar en base de datos.
-     */
     public static String generarHash(String passwordPlano) {
+        if (passwordPlano == null || passwordPlano.isBlank()) {
+            throw new IllegalArgumentException("La contraseña no puede estar vacía.");
+        }
         return BCrypt.hashpw(passwordPlano, BCrypt.gensalt(12));
     }
 
-    /**
-     * Verifica si la contraseña ingresada coincide con el hash almacenado.
-     *
-     * Nota: se mantiene compatibilidad temporal con contraseñas antiguas en texto plano
-     * para no romper el login durante la migración.
-     *
-     * @param passwordPlano contraseña ingresada en el formulario.
-     * @param passwordAlmacenado hash BCrypt o contraseña antigua en texto plano.
-     * @return true si coincide; false si no coincide.
-     */
-    public static boolean verificarPassword(String passwordPlano, String passwordAlmacenado) {
-        if (passwordPlano == null || passwordAlmacenado == null || passwordAlmacenado.isBlank()) {
+    public static boolean verificarPassword(String passwordPlano, String hashAlmacenado) {
+        if (passwordPlano == null || hashAlmacenado == null || hashAlmacenado.isBlank()) {
             return false;
         }
 
-        String valorAlmacenado = passwordAlmacenado.trim();
-
-        try {
-            if (valorAlmacenado.startsWith("$2a$")) {
-                return BCrypt.checkpw(passwordPlano, valorAlmacenado);
-            }
-
-            // Compatibilidad temporal con la versión anterior del sistema.
-            return passwordPlano.equals(valorAlmacenado);
-
-        } catch (IllegalArgumentException ex) {
+        if (!esHashBCrypt(hashAlmacenado)) {
             return false;
         }
+
+        return BCrypt.checkpw(passwordPlano, hashAlmacenado);
+    }
+
+    public static boolean esHashBCrypt(String value) {
+        return value != null && (value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$"));
     }
 }

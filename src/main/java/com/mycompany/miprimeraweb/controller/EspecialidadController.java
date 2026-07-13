@@ -160,7 +160,7 @@ public class EspecialidadController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/especialidad/form.jsp").forward(request, response);
 
         } catch (SQLException ex) {
-            request.setAttribute("error", "No se pudo guardar la especialidad: " + ex.getMessage());
+            request.setAttribute("error", "No se pudo guardar la especialidad. Verifique los datos e intente nuevamente.");
             request.setAttribute("especialidad", especialidad);
             request.getRequestDispatcher("/WEB-INF/views/especialidad/form.jsp").forward(request, response);
         }

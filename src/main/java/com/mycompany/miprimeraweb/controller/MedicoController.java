@@ -1,7 +1,6 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.EspecialidadDAO;
-import com.mycompany.miprimeraweb.dao.EspecialidadDAOImpl;
 import com.mycompany.miprimeraweb.model.Especialidad;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.service.MedicoService;
@@ -26,7 +25,7 @@ import java.util.List;
 public class MedicoController extends HttpServlet {
 
     private final MedicoService medicoService = new MedicoService();
-    private final EspecialidadDAO especialidadDAO = new EspecialidadDAOImpl();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
 
     /**
      * Atiende solicitudes de navegación y consulta.
@@ -150,14 +149,28 @@ public class MedicoController extends HttpServlet {
         String idTexto = request.getParameter("idMedico");
         String nombres = texto(request.getParameter("nombres"));
         String apellidos = texto(request.getParameter("apellidos"));
+        String dni = texto(request.getParameter("dni"));
         String telefono = texto(request.getParameter("telefono"));
+        String correo = texto(request.getParameter("correo"));
+        String cmp = texto(request.getParameter("cmp"));
+        String consultorio = texto(request.getParameter("consultorio"));
+        int duracionCitaMinutos = parseEntero(request.getParameter("duracionCitaMinutos"));
+        int toleranciaMinutos = parseEntero(request.getParameter("toleranciaMinutos"));
+        int maxCitasDia = parseEntero(request.getParameter("maxCitasDia"));
         int idEspecialidad = parseEntero(request.getParameter("idEspecialidad"));
 
         Medico medico = new Medico();
         medico.setIdMedico(parseEntero(idTexto));
         medico.setNombres(nombres);
         medico.setApellidos(apellidos);
+        medico.setDni(dni);
         medico.setTelefono(telefono);
+        medico.setCorreo(correo);
+        medico.setCmp(cmp);
+        medico.setConsultorio(consultorio);
+        medico.setDuracionCitaMinutos(duracionCitaMinutos);
+        medico.setToleranciaMinutos(toleranciaMinutos);
+        medico.setMaxCitasDia(maxCitasDia);
         medico.setIdEspecialidad(idEspecialidad);
 
         try {
@@ -174,7 +187,7 @@ public class MedicoController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/medico/form.jsp").forward(request, response);
 
         } catch (SQLException ex) {
-            request.setAttribute("error", "No se pudo guardar el medico: " + ex.getMessage());
+            request.setAttribute("error", "No se pudo guardar el médico. Verifique los datos e intente nuevamente.");
             request.setAttribute("medico", medico);
             cargarEspecialidades(request);
             request.getRequestDispatcher("/WEB-INF/views/medico/form.jsp").forward(request, response);

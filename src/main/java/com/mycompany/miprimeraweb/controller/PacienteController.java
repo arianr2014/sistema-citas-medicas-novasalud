@@ -145,7 +145,12 @@ public class PacienteController extends HttpServlet {
         String nombres = texto(request.getParameter("nombres"));
         String apellidos = texto(request.getParameter("apellidos"));
         String telefono = texto(request.getParameter("telefono"));
+        String correo = texto(request.getParameter("correo"));
         String direccion = texto(request.getParameter("direccion"));
+        String fechaNacimiento = texto(request.getParameter("fechaNacimiento"));
+        String sexo = texto(request.getParameter("sexo"));
+        String contactoEmergencia = texto(request.getParameter("contactoEmergencia"));
+        String telefonoEmergencia = texto(request.getParameter("telefonoEmergencia"));
 
         Paciente paciente = new Paciente();
         paciente.setIdPaciente(parseEntero(idTexto));
@@ -153,7 +158,12 @@ public class PacienteController extends HttpServlet {
         paciente.setNombres(nombres);
         paciente.setApellidos(apellidos);
         paciente.setTelefono(telefono);
+        paciente.setCorreo(correo);
         paciente.setDireccion(direccion);
+        paciente.setFechaNacimiento(fechaNacimiento);
+        paciente.setSexo(sexo);
+        paciente.setContactoEmergencia(contactoEmergencia);
+        paciente.setTelefonoEmergencia(telefonoEmergencia);
 
         try {
             HttpSession session = request.getSession(false);
@@ -168,7 +178,7 @@ public class PacienteController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/paciente/form.jsp").forward(request, response);
 
         } catch (SQLException ex) {
-            request.setAttribute("error", "No se pudo guardar el paciente: " + ex.getMessage());
+            request.setAttribute("error", "No se pudo guardar el paciente. Verifique los datos e intente nuevamente.");
             request.setAttribute("paciente", paciente);
             request.getRequestDispatcher("/WEB-INF/views/paciente/form.jsp").forward(request, response);
         }

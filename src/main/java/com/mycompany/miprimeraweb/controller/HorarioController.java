@@ -1,7 +1,6 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
-import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.model.Horario;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.service.HorarioService;
@@ -26,7 +25,7 @@ import java.util.List;
 public class HorarioController extends HttpServlet {
 
     private final HorarioService horarioService = new HorarioService();
-    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
+    private final MedicoDAO medicoDAO = new MedicoDAO();
 
     /**
      * Atiende solicitudes de navegación y consulta.
@@ -168,7 +167,7 @@ public class HorarioController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/horario/form.jsp").forward(request, response);
 
         } catch (SQLException ex) {
-            request.setAttribute("error", "No se pudo guardar el horario: " + ex.getMessage());
+            request.setAttribute("error", "No se pudo guardar el horario. Verifique disponibilidad y datos obligatorios.");
             request.setAttribute("horario", horario);
             cargarMedicos(request);
             request.getRequestDispatcher("/WEB-INF/views/horario/form.jsp").forward(request, response);

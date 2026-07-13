@@ -24,14 +24,14 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 4:
                 Se muestra el módulo actual, el usuario autenticado y el rol activo.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Horarios</span>
+                <span class="text-white small">Módulo: Horarios</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -84,19 +84,19 @@
 
                         <form method="post"
                               action="${pageContext.request.contextPath}/horarios"
-                              class="row g-3">
+                              class="row g-3"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
 
                             <input type="hidden"
                                    name="idHorario"
                                    value="${empty horario.idHorario ? 0 : horario.idHorario}">
 
                             <div class="col-md-6">
-                                <label class="form-label">Medico *</label>
+                                <label class="form-label">Médico *</label>
 
                                 <select class="form-select"
                                         name="idMedico"
                                         required>
-                                    <option value="">Seleccione un medico</option>
+                                    <option value="">Seleccione un médico</option>
 
                                     <c:forEach var="m" items="${medicos}">
                                         <option value="${m.idMedico}"

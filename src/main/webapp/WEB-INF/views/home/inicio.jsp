@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 
-<c:set var="pageTitle" value="Inicio - Citas Medicas" scope="request" />
+<c:set var="pageTitle" value="Inicio - Citas Médicas" scope="request" />
 
 <!DOCTYPE html>
 <html lang="es">
@@ -20,7 +20,7 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 5.1:
@@ -28,7 +28,7 @@
                 sin usar salidas directas JSP.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Inicio</span>
+                <span class="text-white small">Módulo: Inicio</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -83,7 +83,7 @@
                             <div class="card-body">
                                 <h6 class="fw-bold mb-3">
                                     <i class="bi bi-person-badge"></i>
-                                    Medicos en turno hoy
+                                    Médicos en turno hoy
                                 </h6>
 
                                 <div class="display-5 fw-bold text-success mb-2">
@@ -91,7 +91,7 @@
                                 </div>
 
                                 <p class="text-muted mb-0">
-                                    Cantidad de medicos con citas activas para hoy.
+                                    Cantidad de médicos con citas activas para hoy.
                                 </p>
                             </div>
                         </div>

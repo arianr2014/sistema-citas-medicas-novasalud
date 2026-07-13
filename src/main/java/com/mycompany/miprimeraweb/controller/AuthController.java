@@ -1,8 +1,8 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.UsuarioDAO;
-import com.mycompany.miprimeraweb.dao.UsuarioDAOImpl;
 import com.mycompany.miprimeraweb.model.Usuario;
+import com.mycompany.miprimeraweb.util.CsrfUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -28,7 +28,7 @@ import java.sql.SQLException;
 @WebServlet({"/login", "/logout"})
 public class AuthController extends HttpServlet {
 
-    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();
+    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     /**
      * Atiende la navegación hacia login o logout.
@@ -84,7 +84,7 @@ public class AuthController extends HttpServlet {
         String password = texto(request.getParameter("password"));
 
         if (username.isBlank() || password.isBlank()) {
-            request.setAttribute("error", "Usuario y contrasena son obligatorios.");
+            request.setAttribute("error", "Usuario y contraseña son obligatorios.");
             request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
             return;
         }
@@ -93,6 +93,12 @@ public class AuthController extends HttpServlet {
             Usuario usuario = usuarioDAO.validarCredenciales(username, password);
 
             if (usuario != null) {
+                if (usuario.esDoctor() && !usuario.tieneMedicoAsociado()) {
+                    request.setAttribute("error", "Su usuario médico no está vinculado a un médico activo. Contacte al administrador.");
+                    request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+                    return;
+                }
+
                 iniciarSesionSegura(request, response, usuario);
                 return;
             }
@@ -107,7 +113,7 @@ public class AuthController extends HttpServlet {
             return;
         }
 
-        request.setAttribute("error", "Credenciales invalidas.");
+        request.setAttribute("error", "Usuario o contraseña incorrectos.");
         request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
     }
 
@@ -137,6 +143,18 @@ public class AuthController extends HttpServlet {
         session.setAttribute("usuarioLogeado", usuario.getUsername());
         session.setAttribute("rolUsuario", usuario.getRol());
         session.setAttribute("idUsuario", usuario.getIdUsuario());
+        session.setAttribute("sessionVersion", usuario.getSessionVersion());
+
+        /*
+         * Identidad médica de sesión.
+         * Solo se usa para DOCTOR y evita que un médico consulte agendas ajenas.
+         */
+        session.setAttribute("idMedico", usuario.getIdMedico());
+        session.setAttribute("nombreMedico", usuario.getMedicoNombreCompleto());
+        session.setAttribute("idEspecialidad", usuario.getIdEspecialidad());
+        session.setAttribute("nombreEspecialidad", usuario.getEspecialidadNombre());
+
+        CsrfUtil.obtenerToken(session);
 
         response.sendRedirect(request.getContextPath() + obtenerRutaInicioPorRol(usuario.getRol()));
     }
@@ -171,6 +189,12 @@ public class AuthController extends HttpServlet {
 
             case "DOCTOR":
                 return "/agenda-medico";
+
+            case "CAJERO":
+                return "/pagos";
+
+            case "DIRECCION":
+                return "/direccion";
 
             default:
                 return "/login";

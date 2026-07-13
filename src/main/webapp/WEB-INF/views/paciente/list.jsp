@@ -1,7 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fn" uri="jakarta.tags.functions"%>
-<c:set var="pageTitle" value="Pacientes" />
+<c:set var="pageTitle" value="Pacientes - NovaSalud V3.2.1" scope="request" />
+<c:set var="moduloActivo" value="pacientes" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
@@ -18,14 +19,14 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 4:
                 Se muestra el módulo actual, el usuario autenticado y el rol activo.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Pacientes</span>
+                <span class="text-white small">Módulo: Pacientes</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -95,7 +96,7 @@
                 -->
                 <c:choose>
                     <c:when test="${param.msg == 'ok'}">
-                        <div class="alert alert-success">Operacion realizada correctamente.</div>
+                        <div class="alert alert-success">Operación realizada correctamente.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'deleted'}">
@@ -107,11 +108,11 @@
                     </c:when>
 
                     <c:when test="${param.msg == 'invalid'}">
-                        <div class="alert alert-danger">Solicitud invalida.</div>
+                        <div class="alert alert-danger">Solicitud inválida.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'metodo_invalido'}">
-                        <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
+                        <div class="alert alert-danger">Operación no permitida por este metodo.</div>
                     </c:when>
                 </c:choose>
 
@@ -124,8 +125,9 @@
                                     <th>DNI</th>
                                     <th>Nombres</th>
                                     <th>Apellidos</th>
-                                    <th>Telefono</th>
-                                    <th>Direccion</th>
+                                    <th>Teléfono</th>
+                                    <th>Dirección</th>
+                                    <th>Historia clínica</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -134,7 +136,7 @@
                                 <c:choose>
                                     <c:when test="${empty pacientes}">
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted py-4">
+                                            <td colspan="8" class="text-center text-muted py-4">
                                                 No hay registros.
                                             </td>
                                         </tr>
@@ -154,6 +156,7 @@
                                                 <td><c:out value="${p.apellidos}" /></td>
                                                 <td><c:out value="${p.telefono}" /></td>
                                                 <td><c:out value="${p.direccion}" /></td>
+                                                <td><span class="badge badge-soft-info"><c:out value="${p.historiaClinicaCodigo}" /></span></td>
 
                                                 <td class="text-center">
                                                     <a href="${pageContext.request.contextPath}/pacientes?accion=editar&id=${p.idPaciente}"
@@ -169,7 +172,7 @@
                                                     -->
                                                     <form action="${pageContext.request.contextPath}/pacientes"
                                                           method="post"
-                                                          class="d-inline">
+                                                          class="d-inline"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
 
                                                         <input type="hidden" name="accion" value="eliminar">
                                                         <input type="hidden" name="id" value="${p.idPaciente}">

@@ -67,14 +67,14 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 4:
                 Se muestra el módulo actual, el usuario autenticado y el rol activo.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Citas</span>
+                <span class="text-white small">Módulo: Citas</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -186,12 +186,12 @@
                                     </div>
 
                                     <div>
-                                        <strong>Telefono:</strong>
+                                        <strong>Teléfono:</strong>
                                         <c:out value="${pacienteEncontrado.telefono}" />
                                     </div>
 
                                     <div>
-                                        <strong>Direccion:</strong>
+                                        <strong>Dirección:</strong>
                                         <c:out value="${pacienteEncontrado.direccion}" />
                                     </div>
                                 </c:when>
@@ -257,6 +257,23 @@
                             </div>
                         </form>
 
+                        <div class="alert alert-info border-0 shadow-sm mb-3">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-cash-coin fs-5"></i>
+                                <div>
+                                    <strong>Tarifas vigentes:</strong>
+                                    <span class="text-muted">Use esta guía para informar precios al paciente antes de confirmar la cita.</span>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        <c:forEach var="t" items="${tarifasActivas}">
+                                            <span class="badge rounded-pill text-bg-light border">
+                                                <c:out value="${t.especialidad}" />: S/ <c:out value="${t.monto}" />
+                                            </span>
+                                        </c:forEach>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!--
                             Formulario principal de cita.
                             Fase 3: guardar/actualizar se mantiene por POST.
@@ -264,7 +281,7 @@
                         <form id="formCita"
                               method="post"
                               action="${pageContext.request.contextPath}/citas"
-                              class="row g-3">
+                              class="row g-3"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
 
                             <input type="hidden"
                                    name="idCita"
@@ -291,14 +308,14 @@
                             </c:choose>
 
                             <div class="col-md-6">
-                                <label class="form-label">Medico *</label>
+                                <label class="form-label">Médico *</label>
 
                                 <select class="form-select"
                                         id="idMedico"
                                         name="idMedico"
                                         required
                                         onchange="recargarHorarios()">
-                                    <option value="">Seleccione medico</option>
+                                    <option value="">Seleccione médico</option>
 
                                     <c:forEach var="m" items="${medicos}">
                                         <option value="${m.idMedico}"
@@ -347,19 +364,19 @@
                                 <c:choose>
                                     <c:when test="${not filtrosCompletos}">
                                         <div class="form-text">
-                                            Seleccione medico y fecha para ver horarios disponibles.
+                                            Seleccione médico y fecha para ver horarios disponibles.
                                         </div>
                                     </c:when>
 
                                     <c:when test="${sinHorarios}">
                                         <div class="text-danger small mt-1">
-                                            No hay horarios disponibles para ese medico en esa fecha.
+                                            No hay horarios disponibles para ese médico en esa fecha.
                                         </div>
                                     </c:when>
 
                                     <c:otherwise>
                                         <div class="text-success small mt-1">
-                                            Se muestran solo horas validas y disponibles.
+                                            Se muestran solo horas válidas y disponibles.
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -367,22 +384,24 @@
 
                             <div class="col-md-4">
                                 <label class="form-label">Estado *</label>
-
-                                <select class="form-select"
-                                        name="estado"
-                                        required>
-                                    <option value="PROGRAMADA" ${estadoSeleccionado == 'PROGRAMADA' ? 'selected' : ''}>
-                                        PROGRAMADA
-                                    </option>
-
-                                    <option value="ATENDIDA" ${estadoSeleccionado == 'ATENDIDA' ? 'selected' : ''}>
-                                        ATENDIDA
-                                    </option>
-
-                                    <option value="CANCELADA" ${estadoSeleccionado == 'CANCELADA' ? 'selected' : ''}>
-                                        CANCELADA
-                                    </option>
-                                </select>
+                                <c:choose>
+                                    <c:when test="${editandoCita}">
+                                        <select class="form-select" name="estado" required>
+                                            <option value="PROGRAMADA" ${estadoSeleccionado == 'PROGRAMADA' ? 'selected' : ''}>PROGRAMADA</option>
+                                            <option value="CONFIRMADA" ${estadoSeleccionado == 'CONFIRMADA' ? 'selected' : ''}>CONFIRMADA</option>
+                                            <option value="REPROGRAMADA" ${estadoSeleccionado == 'REPROGRAMADA' ? 'selected' : ''}>REPROGRAMADA</option>
+                                            <option value="EN_ESPERA" ${estadoSeleccionado == 'EN_ESPERA' ? 'selected' : ''}>EN ESPERA</option>
+                                            <option value="CANCELADA" ${estadoSeleccionado == 'CANCELADA' ? 'selected' : ''}>CANCELADA</option>
+                                            <option value="NO_ASISTIO" ${estadoSeleccionado == 'NO_ASISTIO' ? 'selected' : ''}>NO ASISTIÓ</option>
+                                        </select>
+                                        <div class="form-text">La atención final la registra únicamente el médico desde su agenda.</div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="hidden" name="estado" value="PROGRAMADA">
+                                        <input type="text" class="form-control" value="PROGRAMADA" readonly>
+                                        <div class="form-text">Toda cita nueva inicia como PROGRAMADA y queda pendiente de pago en caja.</div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
 
                             <div class="col-md-8">

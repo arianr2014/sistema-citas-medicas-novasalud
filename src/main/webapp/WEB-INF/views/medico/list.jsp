@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fn" uri="jakarta.tags.functions"%>
-<c:set var="pageTitle" value="Medicos" />
+<% request.setAttribute("pageTitle", "Médicos"); %>
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
@@ -18,14 +18,14 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 4:
                 Se muestra el módulo actual, el usuario autenticado y el rol activo.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Medicos</span>
+                <span class="text-white small">Módulo: Médicos</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -45,7 +45,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="text-green fw-bold mb-0">
-                        <i class="bi bi-person-badge"></i> Listado de Medicos
+                        <i class="bi bi-person-badge"></i> Listado de Médicos
                     </h4>
 
                     <a href="${pageContext.request.contextPath}/medicos?accion=form"
@@ -71,7 +71,7 @@
                                 <input type="text"
                                        class="form-control"
                                        name="q"
-                                       placeholder="Buscar por medico o especialidad"
+                                       placeholder="Buscar por médico o especialidad"
                                        value="${fn:escapeXml(q)}">
                             </div>
 
@@ -95,28 +95,28 @@
                 -->
                 <c:choose>
                     <c:when test="${param.msg == 'ok'}">
-                        <div class="alert alert-success">Operacion realizada correctamente.</div>
+                        <div class="alert alert-success">Operación realizada correctamente.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'deleted'}">
-                        <div class="alert alert-warning">Medico eliminado correctamente.</div>
+                        <div class="alert alert-warning">Médico eliminado correctamente.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'noexiste'}">
-                        <div class="alert alert-info">El medico solicitado no existe.</div>
+                        <div class="alert alert-info">El médico solicitado no existe.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'invalid'}">
-                        <div class="alert alert-danger">Solicitud invalida.</div>
+                        <div class="alert alert-danger">Solicitud inválida.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'metodo_invalido'}">
-                        <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
+                        <div class="alert alert-danger">Operación no permitida por este metodo.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'errorDelete'}">
                         <div class="alert alert-danger">
-                            No se pudo eliminar el medico porque esta relacionado con otros registros.
+                            No se pudo eliminar el médico porque esta relacionado con otros registros.
                         </div>
                     </c:when>
                 </c:choose>
@@ -127,9 +127,9 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Medico</th>
+                                    <th>Médico</th>
                                     <th>Especialidad</th>
-                                    <th>Telefono</th>
+                                    <th>Teléfono</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -160,7 +160,7 @@
                                                 <td class="text-center">
                                                     <a href="${pageContext.request.contextPath}/medicos?accion=editar&id=${m.idMedico}"
                                                        class="btn btn-outline-success btn-sm"
-                                                       title="Editar medico">
+                                                       title="Editar médico">
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
 
@@ -171,15 +171,15 @@
                                                     -->
                                                     <form action="${pageContext.request.contextPath}/medicos"
                                                           method="post"
-                                                          class="d-inline">
+                                                          class="d-inline"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
 
                                                         <input type="hidden" name="accion" value="eliminar">
                                                         <input type="hidden" name="id" value="${m.idMedico}">
 
                                                         <button type="submit"
                                                                 class="btn btn-outline-danger btn-sm"
-                                                                title="Eliminar medico"
-                                                                onclick="return confirm('¿Eliminar medico?');">
+                                                                title="Eliminar médico"
+                                                                onclick="return confirm('¿Eliminar médico?');">
                                                             <i class="bi bi-x-lg"></i>
                                                         </button>
                                                     </form>
