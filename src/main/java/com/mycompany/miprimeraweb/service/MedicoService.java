@@ -1,14 +1,13 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
-import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.model.Medico;
 import java.sql.SQLException;
 import java.util.List;
 
 public class MedicoService {
 
-    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
+    private final MedicoDAO medicoDAO = new MedicoDAO();
 
     public List<Medico> listar(String filtro) throws SQLException {
         return medicoDAO.listar(filtro);
@@ -41,6 +40,9 @@ public class MedicoService {
         if (isBlank(medico.getNombres()) || isBlank(medico.getApellidos()) || medico.getIdEspecialidad() <= 0) {
             throw new IllegalArgumentException("Nombres, apellidos y especialidad son obligatorios.");
         }
+        if (medico.getDuracionCitaMinutos() <= 0) medico.setDuracionCitaMinutos(30);
+        if (medico.getToleranciaMinutos() < 0) medico.setToleranciaMinutos(10);
+        if (medico.getMaxCitasDia() <= 0) medico.setMaxCitasDia(12);
     }
 
     private boolean isBlank(String value) {

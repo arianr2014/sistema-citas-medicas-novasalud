@@ -1,172 +1,23 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fn" uri="jakarta.tags.functions"%>
-
 <c:set var="editandoMedico" value="${not empty medico and medico.idMedico > 0}" />
-<c:set var="pageTitle"
-       value="${editandoMedico ? 'Editar Medico' : 'Registrar Medico'}"
-       scope="request" />
-
-<!DOCTYPE html>
-<html lang="es">
-<%@ include file="/WEB-INF/views/layout/head.jspf" %>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
-        <div class="container-fluid px-4">
-
-            <button class="btn btn-outline-light d-lg-none me-2 mobile-menu-toggle"
-                    type="button"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#sidebarMenu"
-                    aria-controls="sidebarMenu"
-                    aria-label="Abrir menu">
-                <i class="bi bi-list fs-4"></i>
-            </button>
-
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
-
-            <!--
-                Fase 4:
-                Se muestra el módulo actual, el usuario autenticado y el rol activo.
-            -->
-            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Medicos</span>
-                <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
-            </div>
-
-        </div>
-    </nav>
-
-    <%@ include file="/WEB-INF/views/layout/menu-mobile.jspf" %>
-
-    <main class="container-fluid py-4 px-4">
-        <div class="row g-4">
-
-            <div class="col-12 col-lg-3 order-1 order-lg-1">
-                <%@ include file="/WEB-INF/views/layout/menu-right.jspf" %>
-            </div>
-
-            <div class="col-12 col-lg-9 order-2 order-lg-2">
-
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="bi bi-person-plus"></i>
-
-                            <c:choose>
-                                <c:when test="${editandoMedico}">
-                                    Editar Medico
-                                </c:when>
-                                <c:otherwise>
-                                    Registrar Medico
-                                </c:otherwise>
-                            </c:choose>
-                        </h5>
-
-                        <a href="${pageContext.request.contextPath}/medicos"
-                           class="btn btn-light btn-sm">
-                            <i class="bi bi-arrow-left"></i> Volver
-                        </a>
-                    </div>
-
-                    <div class="card-body">
-
-                        <!--
-                            Fase 5:
-                            El mensaje de error se muestra con c:out para evitar salida directa.
-                        -->
-                        <c:if test="${not empty error}">
-                            <div class="alert alert-danger">
-                                <c:out value="${error}" />
-                            </div>
-                        </c:if>
-
-                        <form method="post"
-                              action="${pageContext.request.contextPath}/medicos"
-                              class="row g-3">
-
-                            <input type="hidden"
-                                   name="idMedico"
-                                   value="${empty medico.idMedico ? 0 : medico.idMedico}">
-
-                            <!--
-                                Fase 5:
-                                Los valores que regresan al formulario se escapan con fn:escapeXml.
-                                Esto evita reflejar código HTML o JavaScript en atributos value.
-                            -->
-                            <div class="col-md-6">
-                                <label class="form-label">Nombres *</label>
-                                <input type="text"
-                                       class="form-control"
-                                       name="nombres"
-                                       maxlength="100"
-                                       required
-                                       value="${fn:escapeXml(medico.nombres)}">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Apellidos *</label>
-                                <input type="text"
-                                       class="form-control"
-                                       name="apellidos"
-                                       maxlength="100"
-                                       required
-                                       value="${fn:escapeXml(medico.apellidos)}">
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Especialidad *</label>
-
-                                <select class="form-select"
-                                        name="idEspecialidad"
-                                        required>
-                                    <option value="">Seleccione una especialidad</option>
-
-                                    <c:forEach var="e" items="${especialidades}">
-                                        <option value="${e.idEspecialidad}"
-                                                ${medico.idEspecialidad == e.idEspecialidad ? 'selected' : ''}>
-                                            <c:out value="${e.nombre}" />
-                                        </option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Telefono</label>
-                                <input type="text"
-                                       class="form-control"
-                                       name="telefono"
-                                       maxlength="20"
-                                       value="${fn:escapeXml(medico.telefono)}">
-                            </div>
-
-                            <div class="col-12 d-flex justify-content-end gap-2">
-                                <a href="${pageContext.request.contextPath}/medicos"
-                                   class="btn btn-outline-secondary">
-                                    Cancelar
-                                </a>
-
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-save"></i>
-                                    <c:choose>
-                                        <c:when test="${editandoMedico}">
-                                            Actualizar
-                                        </c:when>
-                                        <c:otherwise>
-                                            Guardar
-                                        </c:otherwise>
-                                    </c:choose>
-                                </button>
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<c:set var="pageTitle" value="${editandoMedico ? 'Editar Médico' : 'Registrar Médico'}" scope="request" />
+<!DOCTYPE html><html lang="es"><%@ include file="/WEB-INF/views/layout/head.jspf" %><body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm"><div class="container-fluid px-4"><button class="btn btn-outline-light d-lg-none me-2 mobile-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"><i class="bi bi-list fs-4"></i></button><span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span><div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto"><span class="text-white small">Módulo: Médicos</span><%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %></div></div></nav><%@ include file="/WEB-INF/views/layout/menu-mobile.jspf" %>
+<main class="container-fluid py-4 px-4"><div class="row g-4"><div class="col-12 col-lg-3"><%@ include file="/WEB-INF/views/layout/menu-right.jspf" %></div><div class="col-12 col-lg-9"><div class="card border-0 shadow-sm"><div class="card-header bg-success text-white d-flex justify-content-between align-items-center"><h5 class="mb-0"><i class="bi bi-person-plus"></i> ${editandoMedico ? 'Editar Médico' : 'Registrar Médico'}</h5><a href="${pageContext.request.contextPath}/medicos" class="btn btn-light btn-sm"><i class="bi bi-arrow-left"></i> Volver</a></div><div class="card-body"><c:if test="${not empty error}"><div class="alert alert-danger"><c:out value="${error}" /></div></c:if>
+<div class="alert alert-light border"><i class="bi bi-calendar-range"></i> La duración y el máximo de citas por día controlan la disponibilidad real de la agenda.</div>
+<form method="post" action="${pageContext.request.contextPath}/medicos" class="row g-3"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %><input type="hidden" name="idMedico" value="${empty medico.idMedico ? 0 : medico.idMedico}">
+<div class="col-md-4"><label class="form-label">Nombres *</label><input class="form-control" name="nombres" required maxlength="100" value="${fn:escapeXml(medico.nombres)}"></div>
+<div class="col-md-4"><label class="form-label">Apellidos *</label><input class="form-control" name="apellidos" required maxlength="100" value="${fn:escapeXml(medico.apellidos)}"></div>
+<div class="col-md-4"><label class="form-label">DNI</label><input class="form-control" name="dni" maxlength="15" value="${fn:escapeXml(medico.dni)}"></div>
+<div class="col-md-4"><label class="form-label">Especialidad *</label><select class="form-select" name="idEspecialidad" required><option value="">Seleccione una especialidad</option><c:forEach var="e" items="${especialidades}"><option value="${e.idEspecialidad}" ${medico.idEspecialidad == e.idEspecialidad ? 'selected' : ''}><c:out value="${e.nombre}" /></option></c:forEach></select></div>
+<div class="col-md-4"><label class="form-label">CMP / Colegiatura</label><input class="form-control" name="cmp" maxlength="30" value="${fn:escapeXml(medico.cmp)}"></div>
+<div class="col-md-4"><label class="form-label">Consultorio</label><input class="form-control" name="consultorio" maxlength="80" value="${fn:escapeXml(medico.consultorio)}"></div>
+<div class="col-md-4"><label class="form-label">Teléfono</label><input class="form-control" name="telefono" maxlength="20" value="${fn:escapeXml(medico.telefono)}"></div>
+<div class="col-md-4"><label class="form-label">Correo</label><input type="email" class="form-control" name="correo" maxlength="100" value="${fn:escapeXml(medico.correo)}"></div>
+<div class="col-md-4"><label class="form-label">Duración cita (min)</label><input type="number" class="form-control" name="duracionCitaMinutos" min="10" max="120" value="${empty medico.duracionCitaMinutos ? 30 : medico.duracionCitaMinutos}"></div>
+<div class="col-md-4"><label class="form-label">Tolerancia (min)</label><input type="number" class="form-control" name="toleranciaMinutos" min="0" max="60" value="${empty medico.toleranciaMinutos ? 10 : medico.toleranciaMinutos}"></div>
+<div class="col-md-4"><label class="form-label">Máximo citas por día</label><input type="number" class="form-control" name="maxCitasDia" min="1" max="40" value="${empty medico.maxCitasDia ? 12 : medico.maxCitasDia}"></div>
+<div class="col-12 d-flex justify-content-end gap-2"><a href="${pageContext.request.contextPath}/medicos" class="btn btn-outline-secondary">Cancelar</a><button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Guardar</button></div>
+</form></div></div></div></div></main><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script></body></html>

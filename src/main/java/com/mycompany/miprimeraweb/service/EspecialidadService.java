@@ -1,14 +1,13 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.EspecialidadDAO;
-import com.mycompany.miprimeraweb.dao.EspecialidadDAOImpl;
 import com.mycompany.miprimeraweb.model.Especialidad;
 import java.sql.SQLException;
 import java.util.List;
 
 public class EspecialidadService {
 
-    private final EspecialidadDAO especialidadDAO = new EspecialidadDAOImpl();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
 
     public List<Especialidad> listar(String filtro) throws SQLException {
         return especialidadDAO.listar(filtro);

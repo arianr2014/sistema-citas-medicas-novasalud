@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fn" uri="jakarta.tags.functions"%>
-<c:set var="pageTitle" value="Horarios" />
+<% request.setAttribute("pageTitle", "Horarios"); %>
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
@@ -18,14 +18,14 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 4:
                 Se muestra el módulo actual, el usuario autenticado y el rol activo.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Horarios</span>
+                <span class="text-white small">Módulo: Horarios</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -71,7 +71,7 @@
                                 <input type="text"
                                        class="form-control"
                                        name="q"
-                                       placeholder="Buscar por medico, especialidad o dia"
+                                       placeholder="Buscar por médico, especialidad o dia"
                                        value="${fn:escapeXml(q)}">
                             </div>
 
@@ -95,7 +95,7 @@
                 -->
                 <c:choose>
                     <c:when test="${param.msg == 'ok'}">
-                        <div class="alert alert-success">Operacion realizada correctamente.</div>
+                        <div class="alert alert-success">Operación realizada correctamente.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'deleted'}">
@@ -107,11 +107,11 @@
                     </c:when>
 
                     <c:when test="${param.msg == 'invalid'}">
-                        <div class="alert alert-danger">Solicitud invalida.</div>
+                        <div class="alert alert-danger">Solicitud inválida.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'metodo_invalido'}">
-                        <div class="alert alert-danger">Operacion no permitida por este metodo.</div>
+                        <div class="alert alert-danger">Operación no permitida por este metodo.</div>
                     </c:when>
 
                     <c:when test="${param.msg == 'errorDelete'}">
@@ -127,7 +127,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Medico</th>
+                                    <th>Médico</th>
                                     <th>Especialidad</th>
                                     <th>Dia</th>
                                     <th>Inicio</th>
@@ -177,7 +177,7 @@
                                                     -->
                                                     <form action="${pageContext.request.contextPath}/horarios"
                                                           method="post"
-                                                          class="d-inline">
+                                                          class="d-inline"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
 
                                                         <input type="hidden" name="accion" value="eliminar">
                                                         <input type="hidden" name="id" value="${h.idHorario}">

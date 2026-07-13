@@ -1,14 +1,13 @@
 package com.mycompany.miprimeraweb.service;
 
 import com.mycompany.miprimeraweb.dao.PacienteDAO;
-import com.mycompany.miprimeraweb.dao.PacienteDAOImpl;
 import com.mycompany.miprimeraweb.model.Paciente;
 import java.sql.SQLException;
 import java.util.List;
 
 public class PacienteService {
 
-    private final PacienteDAO pacienteDAO = new PacienteDAOImpl();
+    private final PacienteDAO pacienteDAO = new PacienteDAO();
 
     public List<Paciente> listar(String filtro) throws SQLException {
         return pacienteDAO.listar(filtro);

@@ -25,7 +25,7 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 5.1:
@@ -44,11 +44,11 @@
     <main class="container-fluid py-4 px-4">
         <div class="row g-4">
 
-            <div class="col-12 col-sm-12 col-md-4 col-lg-3 order-1 order-lg-1">
+            <div class="col-12 col-lg-3 order-1 order-lg-1">
                 <%@ include file="/WEB-INF/views/layout/menu-right.jspf" %>
             </div>
 
-            <div class="col-12 col-sm-12 col-md-8 col-lg-9 order-2 order-lg-2">
+            <div class="col-12 col-lg-9 order-2 order-lg-2">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-5 text-center">
 

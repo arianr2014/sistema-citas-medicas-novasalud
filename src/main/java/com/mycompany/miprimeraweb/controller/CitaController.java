@@ -1,17 +1,14 @@
 package com.mycompany.miprimeraweb.controller;
 
 import com.mycompany.miprimeraweb.dao.EspecialidadDAO;
-import com.mycompany.miprimeraweb.dao.EspecialidadDAOImpl;
 import com.mycompany.miprimeraweb.dao.HorarioDAO;
-import com.mycompany.miprimeraweb.dao.HorarioDAOImpl;
 import com.mycompany.miprimeraweb.dao.MedicoDAO;
-import com.mycompany.miprimeraweb.dao.MedicoDAOImpl;
 import com.mycompany.miprimeraweb.dao.PacienteDAO;
-import com.mycompany.miprimeraweb.dao.PacienteDAOImpl;
 import com.mycompany.miprimeraweb.model.Cita;
 import com.mycompany.miprimeraweb.model.Especialidad;
 import com.mycompany.miprimeraweb.model.Medico;
 import com.mycompany.miprimeraweb.model.Paciente;
+import com.mycompany.miprimeraweb.dao.TarifaConsultaDAO;
 import com.mycompany.miprimeraweb.service.CitaService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -36,10 +33,11 @@ import java.util.List;
 public class CitaController extends HttpServlet {
 
     private final CitaService citaService = new CitaService();
-    private final PacienteDAO pacienteDAO = new PacienteDAOImpl();
-    private final MedicoDAO medicoDAO = new MedicoDAOImpl();
-    private final EspecialidadDAO especialidadDAO = new EspecialidadDAOImpl();
-    private final HorarioDAO horarioDAO = new HorarioDAOImpl();
+    private final PacienteDAO pacienteDAO = new PacienteDAO();
+    private final MedicoDAO medicoDAO = new MedicoDAO();
+    private final EspecialidadDAO especialidadDAO = new EspecialidadDAO();
+    private final HorarioDAO horarioDAO = new HorarioDAO();
+    private final TarifaConsultaDAO tarifaDAO = new TarifaConsultaDAO();
 
     /**
      * Atiende navegación y consultas.
@@ -91,11 +89,12 @@ public class CitaController extends HttpServlet {
         String accion = texto(request.getParameter("accion"));
 
         /*
-         * Fase 3:
-         * Marcar cita como atendida ahora se procesa únicamente por POST.
+         * V3.2:
+         * La cita solo puede ser marcada como ATENDIDA por el médico
+         * desde su agenda propia. Recepción no atiende consultas médicas.
          */
         if ("atender".equals(accion)) {
-            atender(request, response);
+            response.sendRedirect(request.getContextPath() + "/citas?msg=solo_doctor");
             return;
         }
 
@@ -105,6 +104,11 @@ public class CitaController extends HttpServlet {
          */
         if ("eliminar".equals(accion)) {
             eliminar(request, response);
+            return;
+        }
+
+        if ("noAsistio".equals(accion)) {
+            noAsistio(request, response);
             return;
         }
 
@@ -253,8 +257,9 @@ public class CitaController extends HttpServlet {
         try {
             HttpSession session = request.getSession(false);
             String usuario = obtenerUsuarioSesion(session);
+            int idUsuario = obtenerIdUsuarioSesion(session);
 
-            citaService.guardar(cita, usuario);
+            citaService.guardar(cita, usuario, idUsuario);
 
             if (esEdicion) {
                 response.sendRedirect(request.getContextPath() + "/citas?msg=updated");
@@ -280,7 +285,7 @@ public class CitaController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/cita/form.jsp").forward(request, response);
 
         } catch (SQLException ex) {
-            request.setAttribute("error", "No se pudo guardar la cita: " + ex.getMessage());
+            request.setAttribute("error", "No se pudo guardar la cita. Verifique disponibilidad, tarifa vigente y datos obligatorios.");
             request.setAttribute("cita", cita);
 
             prepararFormulario(
@@ -316,11 +321,37 @@ public class CitaController extends HttpServlet {
             citaService.eliminar(idCita);
             response.sendRedirect(request.getContextPath() + "/citas?msg=deleted");
 
+        } catch (IllegalStateException ex) {
+            response.sendRedirect(request.getContextPath() + "/citas?msg=pago_pendiente");
+
         } catch (IllegalArgumentException ex) {
             response.sendRedirect(request.getContextPath() + "/citas?msg=invalid");
 
         } catch (SQLException ex) {
             response.sendRedirect(request.getContextPath() + "/citas?msg=errorDelete");
+        }
+    }
+
+
+    /**
+     * Marca una cita como NO_ASISTIO cuando el paciente no se presenta.
+     * Esta acción pertenece a recepción, no al médico.
+     */
+    private void noAsistio(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        int idCita = parseEntero(request.getParameter("id"));
+
+        if (idCita <= 0) {
+            response.sendRedirect(request.getContextPath() + "/citas?msg=invalid");
+            return;
+        }
+
+        try {
+            boolean actualizada = citaService.marcarNoAsistio(idCita);
+            response.sendRedirect(request.getContextPath() + (actualizada ? "/citas?msg=no_asistio" : "/citas?msg=nochange"));
+        } catch (Exception ex) {
+            response.sendRedirect(request.getContextPath() + "/citas?msg=errorUpdate");
         }
     }
 
@@ -346,6 +377,9 @@ public class CitaController extends HttpServlet {
             } else {
                 response.sendRedirect(request.getContextPath() + "/citas?msg=nochange");
             }
+
+        } catch (IllegalStateException ex) {
+            response.sendRedirect(request.getContextPath() + "/citas?msg=pago_pendiente");
 
         } catch (IllegalArgumentException ex) {
             response.sendRedirect(request.getContextPath() + "/citas?msg=invalid");
@@ -395,6 +429,7 @@ public class CitaController extends HttpServlet {
             request.setAttribute("especialidades", especialidades);
             request.setAttribute("medicos", medicos);
             request.setAttribute("horariosDisponibles", horariosDisponibles);
+            request.setAttribute("tarifasActivas", tarifaDAO.listarActivas());
             request.setAttribute("idEspecialidadSel", idEspecialidadSel);
             request.setAttribute("idMedicoSel", idMedicoSel);
             request.setAttribute("fechaSel", fechaSel);
@@ -414,6 +449,19 @@ public class CitaController extends HttpServlet {
         }
 
         return String.valueOf(session.getAttribute("usuarioLogeado"));
+    }
+
+
+    /** Obtiene el ID del usuario autenticado para trazabilidad. */
+    private int obtenerIdUsuarioSesion(HttpSession session) {
+        if (session == null || session.getAttribute("idUsuario") == null) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(String.valueOf(session.getAttribute("idUsuario")));
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
     }
 
     /**

@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fn" uri="jakarta.tags.functions"%>
-<c:set var="pageTitle" value="Citas" />
+<% request.setAttribute("pageTitle", "Citas"); %>
 <!DOCTYPE html>
 <html lang="es">
 <%@ include file="/WEB-INF/views/layout/head.jspf" %>
@@ -19,14 +19,14 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <span class="navbar-brand fw-semibold">Sistema de Citas Medicas</span>
+            <span class="navbar-brand fw-semibold">NovaSalud V3.2.1</span>
 
             <!--
                 Fase 4:
                 Se muestra el módulo actual, el usuario autenticado y el rol activo.
             -->
             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2 ms-auto">
-                <span class="text-white small">Modulo: Citas</span>
+                <span class="text-white small">Módulo: Citas</span>
                 <%@ include file="/WEB-INF/views/layout/usuario-sesion.jspf" %>
             </div>
 
@@ -79,7 +79,7 @@
                             </div>
 
                             <div class="col-12 col-md-4">
-                                <label class="form-label mb-1">Medico</label>
+                                <label class="form-label mb-1">Médico</label>
 
                                 <select name="idMedico" class="form-select">
                                     <option value="0">Todos</option>
@@ -146,7 +146,7 @@
                         <c:when test="${param.msg == 'ok'}">
                             <div class="alert alert-success">
                                 <i class="bi bi-check-circle"></i>
-                                <strong>Operacion realizada correctamente.</strong>
+                                <strong>Operación realizada correctamente.</strong>
                             </div>
                         </c:when>
 
@@ -193,15 +193,24 @@
                         <c:when test="${param.msg == 'invalid'}">
                             <div class="alert alert-danger">
                                 <i class="bi bi-x-circle"></i>
-                                <strong>Solicitud invalida.</strong>
+                                <strong>Solicitud inválida.</strong>
                                 Verifique los datos enviados.
+                            </div>
+                        </c:when>
+
+
+                        <c:when test="${param.msg == 'solo_doctor'}">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-stethoscope"></i>
+                                <strong>Acción reservada al médico.</strong>
+                                Solo el doctor puede marcar una cita como atendida desde su agenda.
                             </div>
                         </c:when>
 
                         <c:when test="${param.msg == 'metodo_invalido'}">
                             <div class="alert alert-danger">
                                 <i class="bi bi-shield-lock"></i>
-                                <strong>Operacion no permitida.</strong>
+                                <strong>Operación no permitida.</strong>
                                 Esta acción no puede ejecutarse mediante este método.
                             </div>
                         </c:when>
@@ -211,6 +220,22 @@
                                 <i class="bi bi-x-circle"></i>
                                 <strong>No se pudo anular la cita.</strong>
                                 Intente nuevamente o revise el estado actual de la cita.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'pago_pendiente'}">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-cash-coin"></i>
+                                <strong>Pago pendiente.</strong>
+                                La cita debe estar pagada antes de pasar a consulta.
+                            </div>
+                        </c:when>
+
+                        <c:when test="${param.msg == 'no_asistio'}">
+                            <div class="alert alert-info">
+                                <i class="bi bi-person-x"></i>
+                                <strong>Cita marcada como NO ASISTIÓ.</strong>
+                                El registro queda disponible para reportes operativos.
                             </div>
                         </c:when>
 
@@ -231,11 +256,13 @@
                                     <th>ID</th>
                                     <th>DNI</th>
                                     <th>Paciente</th>
-                                    <th>Medico</th>
+                                    <th>Médico</th>
                                     <th>Especialidad</th>
                                     <th>Fecha</th>
                                     <th>Hora</th>
                                     <th>Estado</th>
+                                    <th>Pago</th>
+                                    <th>Monto</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -245,7 +272,7 @@
 
                                     <c:when test="${buscar != true}">
                                         <tr>
-                                            <td colspan="9" class="text-center text-muted py-4">
+                                            <td colspan="11" class="text-center text-muted py-4">
                                                 Seleccione filtros y presione Buscar para ver resultados.
                                             </td>
                                         </tr>
@@ -253,7 +280,7 @@
 
                                     <c:when test="${empty citas}">
                                         <tr>
-                                            <td colspan="9" class="text-center text-muted py-4">
+                                            <td colspan="11" class="text-center text-muted py-4">
                                                 No hay registros.
                                             </td>
                                         </tr>
@@ -294,54 +321,47 @@
                                                     </span>
                                                 </td>
 
+                                                <td>
+                                                    <span class="badge ${cita.estadoPago == 'PAGADO' ? 'badge-soft-success' : 'badge-soft-warning'}">
+                                                        <c:out value="${cita.estadoPago}" />
+                                                    </span>
+                                                </td>
+                                                <td>S/ <c:out value="${cita.montoConsulta}" /></td>
+
                                                 <td class="text-center">
-
-                                                    <c:if test="${estadoCita != 'ATENDIDA'}">
-                                                        <!--
-                                                            Fase 3:
-                                                            Marcar como ATENDIDA se mantiene mediante POST.
-                                                            No se ejecuta por enlace GET.
-                                                        -->
-                                                        <form action="${pageContext.request.contextPath}/citas"
-                                                              method="post"
-                                                              class="d-inline js-form-atender">
-
-                                                            <input type="hidden" name="accion" value="atender">
-                                                            <input type="hidden" name="id" value="${cita.idCita}">
-
-                                                            <button type="submit"
-                                                                    class="btn btn-outline-success btn-sm"
-                                                                    title="Atender cita">
-                                                                <i class="bi bi-check-lg"></i>
-                                                            </button>
-                                                        </form>
-
+                                                    <c:if test="${estadoCita != 'ATENDIDA' and estadoCita != 'CANCELADA' and estadoCita != 'ANULADA'}">
                                                         <a href="${pageContext.request.contextPath}/citas?accion=editar&id=${cita.idCita}"
                                                            class="btn btn-outline-success btn-sm"
-                                                           title="Editar cita">
+                                                           title="Editar / reprogramar cita">
                                                             <i class="bi bi-pencil"></i>
                                                         </a>
+
+                                                        <form action="${pageContext.request.contextPath}/citas"
+                                                              method="post"
+                                                              class="d-inline js-form-no-asistio"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
+                                                            <input type="hidden" name="accion" value="noAsistio">
+                                                            <input type="hidden" name="id" value="${cita.idCita}">
+                                                            <button type="submit"
+                                                                    class="btn btn-outline-warning btn-sm"
+                                                                    title="Marcar como no asistió">
+                                                                <i class="bi bi-person-x"></i>
+                                                            </button>
+                                                        </form>
                                                     </c:if>
 
-                                                    <!--
-                                                        Fase 3:
-                                                        Anular cita se mantiene mediante POST.
-                                                        No se ejecuta por enlace GET.
-                                                    -->
-                                                    <form action="${pageContext.request.contextPath}/citas"
-                                                          method="post"
-                                                          class="d-inline js-form-anular">
-
-                                                        <input type="hidden" name="accion" value="eliminar">
-                                                        <input type="hidden" name="id" value="${cita.idCita}">
-
-                                                        <button type="submit"
-                                                                class="btn btn-outline-danger btn-sm"
-                                                                title="Anular cita">
-                                                            <i class="bi bi-x-lg"></i>
-                                                        </button>
-                                                    </form>
-
+                                                    <c:if test="${estadoCita != 'ATENDIDA' and estadoCita != 'ANULADA'}">
+                                                        <form action="${pageContext.request.contextPath}/citas"
+                                                              method="post"
+                                                              class="d-inline js-form-anular"><%@ include file="/WEB-INF/views/layout/csrf-token.jspf" %>
+                                                            <input type="hidden" name="accion" value="eliminar">
+                                                            <input type="hidden" name="id" value="${cita.idCita}">
+                                                            <button type="submit"
+                                                                    class="btn btn-outline-danger btn-sm"
+                                                                    title="Cancelar cita">
+                                                                <i class="bi bi-x-lg"></i>
+                                                            </button>
+                                                        </form>
+                                                    </c:if>
                                                 </td>
                                             </tr>
                                         </c:forEach>
